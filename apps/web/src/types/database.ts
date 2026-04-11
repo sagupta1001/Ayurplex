@@ -34,6 +34,108 @@ export type Database = {
   }
   public: {
     Tables: {
+      medication_schedules: {
+        Row: {
+          created_at: string
+          days_of_week: number[]
+          frequency: string
+          id: string
+          medication_id: string
+          preferred_room_id: string | null
+          times_of_day: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          days_of_week?: number[]
+          frequency: string
+          id?: string
+          medication_id: string
+          preferred_room_id?: string | null
+          times_of_day: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          days_of_week?: number[]
+          frequency?: string
+          id?: string
+          medication_id?: string
+          preferred_room_id?: string | null
+          times_of_day?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medication_schedules_medication_id_fkey"
+            columns: ["medication_id"]
+            isOneToOne: false
+            referencedRelation: "medications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medication_schedules_preferred_room_id_fkey"
+            columns: ["preferred_room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      medications: {
+        Row: {
+          active: boolean
+          created_at: string
+          dosage_amount: number
+          dosage_unit: string
+          end_date: string | null
+          form: string
+          id: string
+          instructions: string | null
+          meal_relationship: string
+          name: string
+          prescription_id: string | null
+          start_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          dosage_amount: number
+          dosage_unit: string
+          end_date?: string | null
+          form: string
+          id?: string
+          instructions?: string | null
+          meal_relationship: string
+          name: string
+          prescription_id?: string | null
+          start_date: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          dosage_amount?: number
+          dosage_unit?: string
+          end_date?: string | null
+          form?: string
+          id?: string
+          instructions?: string | null
+          meal_relationship?: string
+          name?: string
+          prescription_id?: string | null
+          start_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -99,6 +201,66 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      scheduled_doses: {
+        Row: {
+          adjusted_for: string | null
+          adjustment_reason: string | null
+          created_at: string
+          id: string
+          medication_id: string
+          schedule_id: string
+          scheduled_for: string
+          status: string
+          taken_at: string | null
+          taken_via: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          adjusted_for?: string | null
+          adjustment_reason?: string | null
+          created_at?: string
+          id?: string
+          medication_id: string
+          schedule_id: string
+          scheduled_for: string
+          status?: string
+          taken_at?: string | null
+          taken_via?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          adjusted_for?: string | null
+          adjustment_reason?: string | null
+          created_at?: string
+          id?: string
+          medication_id?: string
+          schedule_id?: string
+          scheduled_for?: string
+          status?: string
+          taken_at?: string | null
+          taken_via?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scheduled_doses_medication_id_fkey"
+            columns: ["medication_id"]
+            isOneToOne: false
+            referencedRelation: "medications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scheduled_doses_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "medication_schedules"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
