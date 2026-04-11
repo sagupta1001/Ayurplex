@@ -3,7 +3,8 @@
 // (timezone bugs). Timestamps are stored as UTC in Supabase and converted to
 // the user's IANA timezone (from `profiles.timezone`) at the edge.
 
-import { toZonedTime, formatInTimeZone } from 'date-fns-tz';
+import { toZonedTime, formatInTimeZone, fromZonedTime } from 'date-fns-tz';
+import { addDays as dfAddDays } from 'date-fns';
 
 export type TimeFormat = '12h' | '24h';
 
@@ -37,4 +38,19 @@ export function isWithinWindow(
 ): boolean {
   const wallClock = formatInTimeZone(new Date(utcIso), timezone, 'HH:mm');
   return wallClock >= startHHMM && wallClock <= endHHMM;
+}
+
+/**
+ * Convert a local wall-clock ISO (e.g. "2026-04-13T09:00:00") in `timezone`
+ * into the corresponding UTC Date. Thin wrapper over date-fns-tz v3's
+ * `fromZonedTime`, re-exported under its v2 name so feature code reads
+ * consistently.
+ */
+export function zonedTimeToUtc(localIso: string, timezone: string): Date {
+  return fromZonedTime(localIso, timezone);
+}
+
+/** Add `days` calendar days to a UTC Date. Pure re-export of date-fns' addDays. */
+export function addDays(date: Date, days: number): Date {
+  return dfAddDays(date, days);
 }
