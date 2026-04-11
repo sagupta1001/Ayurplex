@@ -29,7 +29,7 @@ Ayurplex is a smart, adaptive medication reminder app. Unlike traditional remind
 | Multi-place / advanced location mapping | v2 |
 | Caregiver collaboration & data sharing | v2 |
 | Document vault (lab results, vaccinations, etc.) | v3 or separate product |
-| Insights dashboard + healthcare provider reports | v1.5 |
+| Full Insights dashboard (trends, category analytics, provider reports) | v1.5 |
 | Travel itinerary view | v1.5 |
 | Multi-user / family accounts | v2 |
 | LLM-powered scheduling explanations | v2 (hybrid rule+LLM) |
@@ -78,8 +78,8 @@ Ayurplex is a smart, adaptive medication reminder app. Unlike traditional remind
 ┌─────────────────────────────────────────────────────────────────┐
 │                      CLIENT (React + Vite)                     │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌────────────────┐ │
-│  │   Home   │  │ Calendar │  │ Add Med  │  │    Insights    │ │
-│  │Dashboard │  │   View   │  │  Modal   │  │   Dashboard    │ │
+│  │   Home   │  │ Calendar │  │ Add Med  │  │   Adherence    │ │
+│  │Dashboard │  │   View   │  │  Modal   │  │    (basic)     │ │
 │  └──────────┘  └──────────┘  └──────────┘  └────────────────┘ │
 │                                                                 │
 │  Capacitor Plugins: Push | Geolocation | Camera | SpeechRec    │
@@ -329,7 +329,7 @@ ayurplex/
 │   │   │   │   ├── home/            # Home Dashboard (Status Ring)
 │   │   │   │   ├── calendar/
 │   │   │   │   ├── add-med/         # Add Medication modal flow
-│   │   │   │   ├── insights/
+│   │   │   │   ├── adherence/            # Basic adherence view (v1); full Insights is v1.5
 │   │   │   │   └── settings/
 │   │   │   ├── components/          # Shared UI (Button, Card, StatusRing, ...)
 │   │   │   ├── features/            # Feature modules (one folder per domain)
