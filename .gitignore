@@ -1,6 +1,31 @@
+# Dependencies
 node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+build/
+.turbo/
+.vite/
+*.tsbuildinfo
+
+# Test output
+coverage/
+playwright-report/
+test-results/
+
+# Env files
 .env
 .env.local
-dist/
+.env.*.local
+
+# Editor / OS
 .DS_Store
-.superpowers/
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
