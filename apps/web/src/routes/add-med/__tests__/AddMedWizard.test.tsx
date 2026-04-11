@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { AddMedWizard } from '../AddMedWizard';
 
@@ -12,7 +12,7 @@ beforeEach(() => {
 });
 
 describe('AddMedWizard', () => {
-  it('walks through the 7 steps and calls onSubmit with combined data', () => {
+  it('walks through the 7 steps and calls onSubmit with combined data', async () => {
     const onSubmit = vi.fn();
     const onClose = vi.fn();
     render(<AddMedWizard onSubmit={onSubmit} onClose={onClose} />);
@@ -24,6 +24,7 @@ describe('AddMedWizard', () => {
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
 
     // Step 2: dosage
+    await waitFor(() => expect(screen.getByLabelText(/amount/i)).toBeInTheDocument());
     fireEvent.change(screen.getByLabelText(/amount/i), { target: { value: '500' } });
     fireEvent.change(screen.getByLabelText(/unit/i), { target: { value: 'mg' } });
     fireEvent.change(screen.getByLabelText(/form/i), { target: { value: 'tablet' } });
@@ -68,13 +69,13 @@ describe('AddMedWizard', () => {
     expect(payload.start_date).toBe('2026-04-11');
   });
 
-  it('Back button returns to the previous step', () => {
+  it('Back button returns to the previous step', async () => {
     render(<AddMedWizard onSubmit={() => undefined} onClose={() => undefined} />);
     fireEvent.change(screen.getByLabelText(/medication name/i), {
       target: { value: 'Metformin' },
     });
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
-    expect(screen.getByLabelText(/amount/i)).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByLabelText(/amount/i)).toBeInTheDocument());
     fireEvent.click(screen.getByRole('button', { name: /back/i }));
     expect(screen.getByLabelText(/medication name/i)).toBeInTheDocument();
   });

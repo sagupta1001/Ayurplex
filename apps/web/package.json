@@ -16,6 +16,7 @@
   "dependencies": {
     "@ayurplex/shared": "workspace:*",
     "@ayurplex/ui": "workspace:*",
+    "@hookform/resolvers": "^5.2.2",
     "@supabase/supabase-js": "^2.45.4",
     "@tanstack/react-query": "^5.51.0",
     "date-fns": "^4.1.0",
@@ -23,6 +24,7 @@
     "maplibre-gl": "^4.5.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-hook-form": "^7.72.1",
     "react-map-gl": "^7.1.7",
     "react-router-dom": "^6.26.0",
     "zod": "^4.3.6"
