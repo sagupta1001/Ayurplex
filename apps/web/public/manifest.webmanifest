@@ -1,0 +1,10 @@
+{
+  "name": "Ayurplex",
+  "short_name": "Ayurplex",
+  "description": "Smart adaptive medication reminders.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#007972",
+  "icons": []
+}
