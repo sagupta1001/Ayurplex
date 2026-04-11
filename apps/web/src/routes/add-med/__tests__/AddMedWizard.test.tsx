@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { AddMedWizard } from '../AddMedWizard';
@@ -11,11 +12,25 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
+function renderWizard(props: { onSubmit?: (d: unknown) => void; onClose?: () => void } = {}) {
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
+  return render(
+    <QueryClientProvider client={client}>
+      <AddMedWizard
+        onSubmit={props.onSubmit ?? (() => undefined)}
+        onClose={props.onClose ?? (() => undefined)}
+      />
+    </QueryClientProvider>,
+  );
+}
+
 describe('AddMedWizard', () => {
   it('walks through the 7 steps and calls onSubmit with combined data', async () => {
     const onSubmit = vi.fn();
     const onClose = vi.fn();
-    render(<AddMedWizard onSubmit={onSubmit} onClose={onClose} />);
+    renderWizard({ onSubmit, onClose });
 
     // Step 1: name
     fireEvent.change(screen.getByLabelText(/medication name/i), {
@@ -45,7 +60,10 @@ describe('AddMedWizard', () => {
     fireEvent.click(screen.getByLabelText(/monday/i));
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
 
-    // Step 5: room (skip — no rooms)
+    // Step 5: room (skip — no rooms, wait for empty-list state to settle)
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /next/i })).toBeInTheDocument(),
+    );
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
 
     // Step 6: date range
@@ -71,7 +89,7 @@ describe('AddMedWizard', () => {
   });
 
   it('Back button returns to the previous step', async () => {
-    render(<AddMedWizard onSubmit={() => undefined} onClose={() => undefined} />);
+    renderWizard();
     fireEvent.change(screen.getByLabelText(/medication name/i), {
       target: { value: 'Metformin' },
     });
