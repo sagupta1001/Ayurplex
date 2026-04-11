@@ -1,6 +1,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap');
 
-body {
-  margin: 0;
-  font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
+    font-family: 'Lexend', system-ui, -apple-system, sans-serif;
+  }
 }
