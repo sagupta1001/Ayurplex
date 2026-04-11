@@ -30,22 +30,16 @@ describe('formatTime', () => {
 describe('isWithinWindow', () => {
   it('returns true when the UTC time falls inside the zoned window', () => {
     // 14:00 UTC = 10:00 EDT Toronto; window 08:00-11:00 local
-    expect(
-      isWithinWindow('2026-06-15T14:00:00Z', '08:00', '11:00', 'America/Toronto'),
-    ).toBe(true);
+    expect(isWithinWindow('2026-06-15T14:00:00Z', '08:00', '11:00', 'America/Toronto')).toBe(true);
   });
 
   it('returns false when the UTC time falls outside the zoned window', () => {
     // 14:00 UTC = 10:00 EDT Toronto; window 11:30-13:00 local → outside
-    expect(
-      isWithinWindow('2026-06-15T14:00:00Z', '11:30', '13:00', 'America/Toronto'),
-    ).toBe(false);
+    expect(isWithinWindow('2026-06-15T14:00:00Z', '11:30', '13:00', 'America/Toronto')).toBe(false);
   });
 
   it('handles a window that has already closed for the day', () => {
     // 23:00 UTC = 19:00 EDT; window 08:00-11:00 → outside
-    expect(
-      isWithinWindow('2026-06-15T23:00:00Z', '08:00', '11:00', 'America/Toronto'),
-    ).toBe(false);
+    expect(isWithinWindow('2026-06-15T23:00:00Z', '08:00', '11:00', 'America/Toronto')).toBe(false);
   });
 });

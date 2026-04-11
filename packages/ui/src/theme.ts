@@ -4,7 +4,7 @@
 export const theme = {
   colors: {
     // Primary palette
-    primary: '#007972',       // Forest Green
+    primary: '#007972', // Forest Green
     leafyGreen: '#19AFA2',
     darkGreen: '#4D9999',
     secondaryBlue: '#27879F',

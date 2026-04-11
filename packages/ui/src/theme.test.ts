@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { theme } from './theme';
 
 describe('theme', () => {
-  it('exposes Priya\'s primary forest green', () => {
+  it("exposes Priya's primary forest green", () => {
     expect(theme.colors.primary).toBe('#007972');
   });
 

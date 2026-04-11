@@ -2,11 +2,7 @@ import type { Config } from 'tailwindcss';
 import { theme } from '@ayurplex/ui/theme';
 
 const config: Config = {
-  content: [
-    './index.html',
-    './src/**/*.{ts,tsx}',
-    '../../packages/ui/src/**/*.{ts,tsx}',
-  ],
+  content: ['./index.html', './src/**/*.{ts,tsx}', '../../packages/ui/src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
