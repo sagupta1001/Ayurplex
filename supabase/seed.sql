@@ -1,0 +1,3 @@
+-- Ayurplex dev seed data.
+-- Plan 1 leaves this empty. Later plans will populate test users, medications,
+-- and scheduled doses per the spec's "Test data & seeding" section.
