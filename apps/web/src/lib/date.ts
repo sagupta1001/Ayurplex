@@ -56,6 +56,14 @@ export function addDays(date: Date, days: number): Date {
 }
 
 /**
+ * Format a Date as a local 12h time string in the given IANA timezone.
+ * Example: new Date('2026-04-11T13:00:00Z') + 'America/Toronto' → '9:00 AM'
+ */
+export function formatLocalTime(date: Date, timezone: string): string {
+  return formatInTimeZone(date, timezone, 'h:mm a');
+}
+
+/**
  * Return the UTC Date corresponding to midnight 00:00:00 of the local calendar
  * day in `timezone` that contains `now`.
  *

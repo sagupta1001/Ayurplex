@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { toUserTimezone, formatTime, isWithinWindow, startOfLocalDay } from './date';
+import { toUserTimezone, formatTime, isWithinWindow, startOfLocalDay, formatLocalTime } from './date';
 
 describe('toUserTimezone', () => {
   it('converts a UTC ISO string to a zoned Date in America/Toronto', () => {
@@ -41,6 +41,13 @@ describe('isWithinWindow', () => {
   it('handles a window that has already closed for the day', () => {
     // 23:00 UTC = 19:00 EDT; window 08:00-11:00 → outside
     expect(isWithinWindow('2026-06-15T23:00:00Z', '08:00', '11:00', 'America/Toronto')).toBe(false);
+  });
+});
+
+describe('formatLocalTime', () => {
+  it('formats a UTC Date as local 12h time in a timezone', () => {
+    // 13:00 UTC → 9:00 AM Toronto EDT
+    expect(formatLocalTime(new Date('2026-04-11T13:00:00Z'), 'America/Toronto')).toBe('9:00 AM');
   });
 });
 
