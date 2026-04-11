@@ -11,7 +11,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src --max-warnings 0"
+    "lint": "eslint src --max-warnings 0",
+    "seed:dev": "node scripts/seed-dev-user.mjs"
   },
   "dependencies": {
     "@ayurplex/shared": "workspace:*",
