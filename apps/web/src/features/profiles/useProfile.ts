@@ -15,8 +15,8 @@ export function useUpdateProfile() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (partial: ProfileUpdate) => updateProfile(partial),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: profileQueryKey });
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: profileQueryKey });
     },
   });
 }
