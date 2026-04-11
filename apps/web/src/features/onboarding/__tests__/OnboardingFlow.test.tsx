@@ -44,24 +44,18 @@ vi.mock('react-map-gl/maplibre', () => {
   };
 });
 
-type GlobalWithNotification = typeof globalThis & {
-  Notification?: {
-    requestPermission: ReturnType<typeof vi.fn>;
-    permission: NotificationPermission;
-  };
-};
-const globalAny = globalThis as GlobalWithNotification;
-const originalNotification = globalAny.Notification;
+const globalRecord = globalThis as Record<string, unknown>;
+const originalNotification = globalRecord['Notification'];
 
 beforeEach(() => {
   updateProfile.mockClear();
-  globalAny.Notification = {
+  globalRecord['Notification'] = {
     requestPermission: vi.fn().mockResolvedValue('granted'),
-    permission: 'default',
+    permission: 'default' as NotificationPermission,
   };
 });
 afterEach(() => {
-  globalAny.Notification = originalNotification;
+  globalRecord['Notification'] = originalNotification;
 });
 
 describe('OnboardingFlow', () => {
