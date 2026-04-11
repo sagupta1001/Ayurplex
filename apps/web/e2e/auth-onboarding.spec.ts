@@ -43,5 +43,5 @@ test('authenticated user completes onboarding and lands on home', async ({ conte
 
   // Home page — give extra time for the refetch + RequireOnboarded to unblock
   await expect(page).toHaveURL('http://localhost:5175/', { timeout: 15_000 });
-  await expect(page.getByText(/welcome, e2e user/i)).toBeVisible();
+  await expect(page.getByText(/hello, e2e user/i)).toBeVisible();
 });

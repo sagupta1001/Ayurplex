@@ -1,29 +1,129 @@
 import type { ReactElement } from 'react';
+import { Link } from 'react-router-dom';
+import { useMedications } from '@/features/medications/useMedications';
+import { MedicationList } from '@/features/medications/MedicationList';
+import { useDueToday } from '@/features/doses/useDueToday';
+import { DoseRow } from '@/features/doses/DoseRow';
 import { useProfile } from '@/features/profiles/useProfile';
 import { SignOutButton } from '@/features/auth/SignOutButton';
+import { StatusRing } from './StatusRing';
 
-export default function HomePage(): ReactElement {
+export function HomePage(): ReactElement {
   const { data: profile } = useProfile();
+  const timezone = profile?.timezone ?? 'UTC';
+  const { medications } = useMedications();
+  const { doses, takenCount, totalCount, markTaken } = useDueToday({ timezone });
+
+  const medNameById = new Map(medications.map((m) => [m.id, m.name]));
 
   return (
-    <main className="min-h-screen bg-white px-6 py-10 font-body text-dark-black">
-      <header className="mx-auto flex max-w-2xl items-center justify-between">
-        <h1 className="font-heading text-2xl font-semibold text-primary">
-          Welcome, {profile?.display_name ?? 'there'}
-        </h1>
-        <SignOutButton />
-      </header>
-      <section className="mx-auto mt-12 max-w-2xl rounded-2xl border border-dark-black/10 bg-white/60 p-8 text-center">
-        <p className="text-dark-black/70">Your medications will appear here.</p>
-        <button
-          type="button"
-          disabled
-          className="mt-6 inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/40 text-2xl text-white"
-          aria-label="Add medication (coming soon)"
+    <main
+      style={{
+        maxWidth: 480,
+        margin: '0 auto',
+        padding: '24px 16px 96px',
+        fontFamily: 'Roboto, sans-serif',
+      }}
+    >
+      <header
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          marginBottom: 24,
+        }}
+      >
+        <div
+          style={{
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: 16,
+          }}
         >
-          +
-        </button>
+          <h1
+            style={{
+              fontFamily: 'Lexend, sans-serif',
+              fontSize: 24,
+              fontWeight: 600,
+              color: '#092C4C',
+              margin: 0,
+            }}
+          >
+            Hello, {profile?.display_name ?? 'there'}
+          </h1>
+          <SignOutButton />
+        </div>
+        <StatusRing taken={takenCount} total={totalCount} />
+      </header>
+
+      <section style={{ marginBottom: 32 }}>
+        <h2
+          style={{
+            fontFamily: 'Lexend, sans-serif',
+            fontSize: 18,
+            color: '#092C4C',
+            marginBottom: 12,
+          }}
+        >
+          Today
+        </h2>
+        {doses.length === 0 ? (
+          <p style={{ color: '#4D9999' }}>Nothing due today.</p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {doses.map((d) => (
+              <DoseRow
+                key={d.id}
+                dose={d}
+                medicationName={medNameById.get(d.medication_id) ?? 'Medication'}
+                timezone={timezone}
+                onMarkTaken={(id) => void markTaken(id)}
+              />
+            ))}
+          </div>
+        )}
       </section>
+
+      <section>
+        <h2
+          style={{
+            fontFamily: 'Lexend, sans-serif',
+            fontSize: 18,
+            color: '#092C4C',
+            marginBottom: 12,
+          }}
+        >
+          Medications
+        </h2>
+        <MedicationList medications={medications} />
+      </section>
+
+      <Link
+        to="/add-med"
+        aria-label="Add medication"
+        style={{
+          position: 'fixed',
+          bottom: 24,
+          right: 24,
+          width: 56,
+          height: 56,
+          borderRadius: 28,
+          background: '#007972',
+          color: '#FFFFFF',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 28,
+          textDecoration: 'none',
+          boxShadow: '0 4px 12px rgba(0, 121, 114, 0.4)',
+        }}
+      >
+        +
+      </Link>
     </main>
   );
 }
+
+export default HomePage;
