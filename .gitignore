@@ -17,6 +17,10 @@ apps/*/vitest.config.js
 apps/*/vitest.config.d.ts
 apps/*/vitest.config.js.map
 apps/*/vitest.config.d.ts.map
+apps/*/capacitor.config.js
+apps/*/capacitor.config.d.ts
+apps/*/capacitor.config.js.map
+apps/*/capacitor.config.d.ts.map
 
 # Test output
 coverage/
