@@ -32,7 +32,7 @@ export function useDueToday(options: UseDueTodayOptions): UseDueTodayResult {
   const [overrides, setOverrides] = useState<Record<string, Partial<ScheduledDose>>>({});
 
   // Merge server data with local optimistic overrides
-  const serverDoses = query.data ?? [];
+  const serverDoses = useMemo(() => query.data ?? [], [query.data]);
   const doses = useMemo(
     () => serverDoses.map((d) => (overrides[d.id] != null ? { ...d, ...overrides[d.id] } : d)),
     [serverDoses, overrides],
