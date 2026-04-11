@@ -54,3 +54,15 @@ export function zonedTimeToUtc(localIso: string, timezone: string): Date {
 export function addDays(date: Date, days: number): Date {
   return dfAddDays(date, days);
 }
+
+/**
+ * Return the UTC Date corresponding to midnight 00:00:00 of the local calendar
+ * day in `timezone` that contains `now`.
+ *
+ * Uses formatInTimeZone to render the local YYYY-MM-DD, then maps that local
+ * midnight back to UTC via zonedTimeToUtc.
+ */
+export function startOfLocalDay(now: Date, timezone: string): Date {
+  const localYmd = formatInTimeZone(now, timezone, 'yyyy-MM-dd');
+  return zonedTimeToUtc(`${localYmd}T00:00:00`, timezone);
+}

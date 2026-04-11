@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { toUserTimezone, formatTime, isWithinWindow } from './date';
+import { toUserTimezone, formatTime, isWithinWindow, startOfLocalDay } from './date';
 
 describe('toUserTimezone', () => {
   it('converts a UTC ISO string to a zoned Date in America/Toronto', () => {
@@ -41,5 +41,21 @@ describe('isWithinWindow', () => {
   it('handles a window that has already closed for the day', () => {
     // 23:00 UTC = 19:00 EDT; window 08:00-11:00 → outside
     expect(isWithinWindow('2026-06-15T23:00:00Z', '08:00', '11:00', 'America/Toronto')).toBe(false);
+  });
+});
+
+describe('startOfLocalDay', () => {
+  it('returns UTC midnight of the local day in the given timezone', () => {
+    // 2026-04-11T18:00:00Z = 2026-04-11 14:00 local Toronto (EDT, UTC-4)
+    const result = startOfLocalDay(new Date('2026-04-11T18:00:00Z'), 'America/Toronto');
+    // 2026-04-11 00:00 Toronto EDT = 2026-04-11T04:00:00Z
+    expect(result.toISOString()).toBe('2026-04-11T04:00:00.000Z');
+  });
+
+  it('handles a non-local timezone ahead of UTC', () => {
+    // 2026-04-11T18:00:00Z = 2026-04-11 23:30 IST
+    const result = startOfLocalDay(new Date('2026-04-11T18:00:00Z'), 'Asia/Kolkata');
+    // 2026-04-11 00:00 IST = 2026-04-10T18:30:00Z
+    expect(result.toISOString()).toBe('2026-04-10T18:30:00.000Z');
   });
 });
