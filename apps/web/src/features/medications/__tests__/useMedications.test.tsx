@@ -17,9 +17,10 @@ function makeWrapper(): ({ children }: { children: ReactNode }) => React.ReactEl
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
-  return ({ children }) => (
-    <QueryClientProvider client={client}>{children}</QueryClientProvider>
-  );
+  function Wrapper({ children }: { children: ReactNode }): React.ReactElement {
+    return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+  }
+  return Wrapper;
 }
 
 beforeEach(() => {
@@ -54,6 +55,6 @@ describe('useMedications', () => {
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.medications).toHaveLength(1);
-    expect(result.current.medications[0].name).toBe('Metformin');
+    expect(result.current.medications[0]?.name).toBe('Metformin');
   });
 });

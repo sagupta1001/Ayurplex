@@ -48,11 +48,19 @@ const sampleRow: Medication = {
   updated_at: '2026-04-11T00:00:00.000Z',
 };
 
-type MockedSupabase = typeof supabase & { __chain: Record<string, ReturnType<typeof vi.fn>> };
+type MockChain = {
+  select: ReturnType<typeof vi.fn>;
+  eq: ReturnType<typeof vi.fn>;
+  order: ReturnType<typeof vi.fn>;
+  single: ReturnType<typeof vi.fn>;
+  insert: ReturnType<typeof vi.fn>;
+  update: ReturnType<typeof vi.fn>;
+};
+type MockedSupabase = typeof supabase & { __chain: MockChain };
 const mocked = supabase as unknown as MockedSupabase;
 
 beforeEach(() => {
-  for (const fn of Object.values(mocked.__chain)) fn.mockClear?.();
+  for (const fn of Object.values(mocked.__chain) as Array<ReturnType<typeof vi.fn>>) fn.mockClear();
   (supabase.from as unknown as ReturnType<typeof vi.fn>).mockClear();
 });
 
