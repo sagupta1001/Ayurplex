@@ -27,10 +27,11 @@ describe('AddMedWizard', () => {
     await waitFor(() => expect(screen.getByLabelText(/amount/i)).toBeInTheDocument());
     fireEvent.change(screen.getByLabelText(/amount/i), { target: { value: '500' } });
     fireEvent.change(screen.getByLabelText(/unit/i), { target: { value: 'mg' } });
-    fireEvent.change(screen.getByLabelText(/form/i), { target: { value: 'tablet' } });
+    fireEvent.change(screen.getByLabelText(/^form$/i), { target: { value: 'tablet' } });
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
 
     // Step 3: meal
+    await waitFor(() => expect(screen.getByLabelText(/with meal/i)).toBeInTheDocument());
     fireEvent.click(screen.getByLabelText(/with meal/i));
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
 
