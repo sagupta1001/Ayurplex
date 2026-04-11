@@ -13,6 +13,10 @@ apps/*/vite.config.js
 apps/*/vite.config.d.ts
 apps/*/vite.config.js.map
 apps/*/vite.config.d.ts.map
+apps/*/vitest.config.js
+apps/*/vitest.config.d.ts
+apps/*/vitest.config.js.map
+apps/*/vitest.config.d.ts.map
 
 # Test output
 coverage/
