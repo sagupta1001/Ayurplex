@@ -7,6 +7,7 @@ import { RequireOnboarded } from '@/features/onboarding/RequireOnboarded';
 import SignInPage from '@/routes/sign-in';
 import OnboardingPage from '@/routes/onboarding';
 import HomePage from '@/routes/home';
+import { AddMedRoute } from '@/routes/add-med';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, retry: 1 } },
@@ -33,6 +34,16 @@ export function App(): ReactElement {
                 <RequireAuth>
                   <RequireOnboarded>
                     <HomePage />
+                  </RequireOnboarded>
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/add-med"
+              element={
+                <RequireAuth>
+                  <RequireOnboarded>
+                    <AddMedRoute />
                   </RequireOnboarded>
                 </RequireAuth>
               }
