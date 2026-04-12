@@ -227,9 +227,13 @@ Deno.serve(async (_req) => {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
     const now = new Date();
+    const thirtyMinutesAgo = new Date(now.getTime() - 30 * 60 * 1000);
     const fiveMinutesLater = new Date(now.getTime() + 5 * 60 * 1000);
 
-    // Query pending doses in the next 5-minute window with medication names
+    // Query pending doses in the window [now-30min, now+5min] to catch:
+    // - doses due right now
+    // - recently-due doses not yet taken
+    // - upcoming doses in the next 5 minutes
     const { data: doses, error: dosesError } = await supabase
       .from('scheduled_doses')
       .select(`
@@ -239,7 +243,7 @@ Deno.serve(async (_req) => {
         medications!inner (name, dosage_amount, dosage_unit)
       `)
       .eq('status', 'pending')
-      .gte('scheduled_for', now.toISOString())
+      .gte('scheduled_for', thirtyMinutesAgo.toISOString())
       .lt('scheduled_for', fiveMinutesLater.toISOString());
 
     if (dosesError) {
