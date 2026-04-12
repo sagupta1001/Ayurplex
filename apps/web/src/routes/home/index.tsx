@@ -5,12 +5,14 @@ import { MedicationList } from '@/features/medications/MedicationList';
 import { useDueToday } from '@/features/doses/useDueToday';
 import { DoseRow } from '@/features/doses/DoseRow';
 import { useProfile } from '@/features/profiles/useProfile';
+import { useTimezoneSync } from '@/features/profiles/useTimezoneSync';
 import { SignOutButton } from '@/features/auth/SignOutButton';
 import { BellToggle } from '@/features/notifications/BellToggle';
 import { StatusRing } from './StatusRing';
 
 export function HomePage(): ReactElement {
   const { data: profile } = useProfile();
+  useTimezoneSync();
   const timezone = profile?.timezone ?? 'UTC';
   const { medications } = useMedications();
   const { doses, takenCount, totalCount, markTaken } = useDueToday({ timezone });
