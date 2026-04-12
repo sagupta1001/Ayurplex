@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Rounded square background -->
+  <rect width="32" height="32" rx="8" ry="8" fill="#007972"/>
+
+  <!-- Capsule pill icon, rotated 45deg, centered at 16,16 -->
+  <!-- Pill is 18px long, 8px wide, split half-half -->
+  <!-- Left half (teal #19AFA2) -->
+  <g transform="translate(16,16) rotate(-45)">
+    <!-- Left semicircle half of pill -->
+    <path d="M 0 -4 L -5 -4 A 4 4 0 0 0 -5 4 L 0 4 Z" fill="#19AFA2"/>
+    <!-- Right semicircle half of pill -->
+    <path d="M 0 -4 L 5 -4 A 4 4 0 0 1 5 4 L 0 4 Z" fill="#FFFFFF"/>
+    <!-- Dividing line -->
+    <line x1="0" y1="-4" x2="0" y2="4" stroke="#007972" stroke-width="0.75"/>
+  </g>
+</svg>

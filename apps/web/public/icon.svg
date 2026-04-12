@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Maskable safe zone: icon fills full canvas, key content within central 80% -->
+  <!-- Rounded square background -->
+  <rect width="512" height="512" rx="96" ry="96" fill="#007972"/>
+
+  <!-- Capsule pill, rotated -45deg, centered at 256,256 -->
+  <!-- Pill body: 240px long, 96px wide — generous for 512px canvas -->
+  <g transform="translate(256,256) rotate(-45)">
+    <!-- Left (teal) half -->
+    <path d="M 0 -48 L -72 -48 A 48 48 0 0 0 -72 48 L 0 48 Z" fill="#19AFA2"/>
+    <!-- Right (white) half -->
+    <path d="M 0 -48 L 72 -48 A 48 48 0 0 1 72 48 L 0 48 Z" fill="#FFFFFF"/>
+    <!-- Center divider -->
+    <line x1="0" y1="-48" x2="0" y2="48" stroke="#007972" stroke-width="6"/>
+  </g>
+</svg>
