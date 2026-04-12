@@ -3,5 +3,13 @@
   "buildCommand": "cd ../.. && pnpm install && pnpm --filter @ayurplex/web build",
   "outputDirectory": "dist",
   "installCommand": "echo 'skip - handled in buildCommand'",
-  "rewrites": [{ "source": "/:path((?!sw\\.js|icon\\.svg|favicon\\.svg|manifest\\.webmanifest|assets/).*)", "destination": "/index.html" }]
+  "headers": [
+    {
+      "source": "/sw.js",
+      "headers": [
+        { "key": "Service-Worker-Allowed", "value": "/" },
+        { "key": "Cache-Control", "value": "no-cache" }
+      ]
+    }
+  ]
 }
