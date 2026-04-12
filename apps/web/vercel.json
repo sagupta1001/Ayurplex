@@ -3,5 +3,5 @@
   "buildCommand": "cd ../.. && pnpm install && pnpm --filter @ayurplex/web build",
   "outputDirectory": "dist",
   "installCommand": "echo 'skip - handled in buildCommand'",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "rewrites": [{ "source": "/:path((?!sw\\.js|icon\\.svg|favicon\\.svg|manifest\\.webmanifest|assets/).*)", "destination": "/index.html" }]
 }
