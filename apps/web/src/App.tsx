@@ -8,6 +8,8 @@ import SignInPage from '@/routes/sign-in';
 import OnboardingPage from '@/routes/onboarding';
 import HomePage from '@/routes/home';
 import { AddMedRoute } from '@/routes/add-med';
+import { UploadPrescriptionRoute } from '@/routes/upload-prescription';
+import { ReviewScreen } from '@/routes/upload-prescription/ReviewScreen';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, retry: 1 } },
@@ -44,6 +46,26 @@ export function App(): ReactElement {
                 <RequireAuth>
                   <RequireOnboarded>
                     <AddMedRoute />
+                  </RequireOnboarded>
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/upload-prescription"
+              element={
+                <RequireAuth>
+                  <RequireOnboarded>
+                    <UploadPrescriptionRoute />
+                  </RequireOnboarded>
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/upload-prescription/review/:id"
+              element={
+                <RequireAuth>
+                  <RequireOnboarded>
+                    <ReviewScreen />
                   </RequireOnboarded>
                 </RequireAuth>
               }
