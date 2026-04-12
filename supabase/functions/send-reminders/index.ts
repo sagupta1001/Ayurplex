@@ -143,7 +143,7 @@ async function encryptPayload(
 
   // Encrypt with AES-128-GCM
   const contentKey = await crypto.subtle.importKey('raw', prk, 'AES-GCM', false, ['encrypt']);
-  const padded = concatBytes(textEncode(payload), new Uint8Array([2])); // padding delimiter (RFC 8188: content || 0x02)
+  const padded = concatBytes(textEncode(payload), new Uint8Array([1])); // RFC 8291 §3.4: final/only record delimiter is 0x01
   const encrypted = await crypto.subtle.encrypt(
     { name: 'AES-GCM', iv: nonce },
     contentKey,
