@@ -20,25 +20,12 @@ test('authenticated user completes onboarding and lands on home', async ({ conte
 
   // WelcomeStep
   await expect(page.getByRole('heading', { name: 'Welcome to Ayurplex' })).toBeVisible();
-  await page.getByRole('button', { name: 'Continue' }).click();
-
-  // HomeLocationStep - skip map interaction; click Skip for now
-  await expect(page.getByRole('heading', { name: /set your home/i })).toBeVisible();
-  await page.getByRole('button', { name: /skip for now/i }).click();
-
-  // NotificationStep - heading differs by browser notification support
-  await expect(
-    page.getByRole('heading', { name: /reminders/i }),
-  ).toBeVisible();
 
   // Wait for the profile PATCH (onboarding finish) to complete, then the app navigates to /
   const profileUpdateResponse = page.waitForResponse(
     (r) => r.url().includes('/rest/v1/profiles') && r.request().method() === 'PATCH',
   );
-  await page
-    .getByRole('button', { name: /maybe later|continue/i })
-    .first()
-    .click();
+  await page.getByRole('button', { name: 'Continue' }).click();
   await profileUpdateResponse;
 
   // Home page — give extra time for the refetch + RequireOnboarded to unblock

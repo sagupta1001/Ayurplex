@@ -1,8 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
-import type { ReactNode } from 'react';
 import { OnboardingFlow } from '../OnboardingFlow';
 
 const { updateProfile } = vi.hoisted(() => ({
@@ -28,38 +27,12 @@ vi.mock('@/features/profiles/useProfile', () => ({
   useUpdateProfile: () => ({ mutateAsync: updateProfile }),
 }));
 
-vi.mock('react-map-gl/maplibre', () => {
-  type MockMapProps = {
-    children?: ReactNode;
-    onClick?: (e: { lngLat: { lng: number; lat: number } }) => void;
-  };
-  return {
-    __esModule: true,
-    default: ({ children, onClick }: MockMapProps) => (
-      <div data-testid="map" onClick={() => onClick?.({ lngLat: { lng: -79.38, lat: 43.65 } })}>
-        {children}
-      </div>
-    ),
-    Marker: ({ children }: { children?: ReactNode }) => <div>{children}</div>,
-  };
-});
-
-const globalRecord = globalThis as Record<string, unknown>;
-const originalNotification = globalRecord['Notification'];
-
 beforeEach(() => {
   updateProfile.mockClear();
-  globalRecord['Notification'] = {
-    requestPermission: vi.fn().mockResolvedValue('granted'),
-    permission: 'default' as NotificationPermission,
-  };
-});
-afterEach(() => {
-  globalRecord['Notification'] = originalNotification;
 });
 
 describe('OnboardingFlow', () => {
-  it('walks welcome -> home -> notifications -> /', async () => {
+  it('walks welcome -> continue -> marks onboarding complete -> /', async () => {
     render(
       <MemoryRouter initialEntries={['/onboarding']}>
         <Routes>
@@ -69,23 +42,8 @@ describe('OnboardingFlow', () => {
       </MemoryRouter>,
     );
 
-    // Welcome
+    // Welcome step
     await userEvent.click(screen.getByRole('button', { name: /continue/i }));
-
-    // Home location
-    await userEvent.click(screen.getByTestId('map'));
-    await userEvent.click(screen.getByRole('button', { name: /save/i }));
-
-    await waitFor(() =>
-      expect(updateProfile).toHaveBeenCalledWith({
-        home_lat: 43.65,
-        home_lng: -79.38,
-        home_radius_m: 50,
-      }),
-    );
-
-    // Notifications
-    await userEvent.click(screen.getByRole('button', { name: /turn on reminders/i }));
 
     await waitFor(() =>
       expect(updateProfile).toHaveBeenCalledWith({

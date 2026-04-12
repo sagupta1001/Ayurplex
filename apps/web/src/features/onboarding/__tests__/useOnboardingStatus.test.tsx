@@ -23,7 +23,7 @@ describe('useOnboardingStatus', () => {
     expect(result.current.needsOnboarding).toBe(false);
   });
 
-  it('needs onboarding when home_lat is null and onboarding_complete is falsy', async () => {
+  it('needs onboarding when onboarding_complete is falsy', async () => {
     mockProfile.mockReturnValue({
       data: { home_lat: null, home_lng: null, notification_prefs: {} },
       isLoading: false,
@@ -47,13 +47,13 @@ describe('useOnboardingStatus', () => {
     expect(result.current.needsOnboarding).toBe(false);
   });
 
-  it('does not need onboarding when home_lat is set', async () => {
+  it('still needs onboarding when home_lat is set but onboarding_complete is falsy', async () => {
     mockProfile.mockReturnValue({
       data: { home_lat: 43.65, home_lng: -79.38, notification_prefs: {} },
       isLoading: false,
     });
     const { result } = renderHook(() => useOnboardingStatus(), { wrapper });
     await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.needsOnboarding).toBe(false);
+    expect(result.current.needsOnboarding).toBe(true);
   });
 });

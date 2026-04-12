@@ -14,10 +14,9 @@ export function useOnboardingStatus(): OnboardingStatus {
 
   const prefs = (profile.notification_prefs ?? {}) as Record<string, unknown>;
   const onboardingComplete = Boolean(prefs.onboarding_complete);
-  const hasHome = profile.home_lat != null && profile.home_lng != null;
 
   return {
     loading: false,
-    needsOnboarding: !onboardingComplete && !hasHome,
+    needsOnboarding: !onboardingComplete,
   };
 }

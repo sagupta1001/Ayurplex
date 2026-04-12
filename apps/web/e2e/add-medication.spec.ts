@@ -18,19 +18,10 @@ test.describe('Add medication happy path', () => {
     // If redirected to onboarding (unonboarded state), complete it inline
     if (/\/onboarding$/.test(page.url())) {
       await expect(page.getByRole('heading', { name: 'Welcome to Ayurplex' })).toBeVisible();
-      await page.getByRole('button', { name: 'Continue' }).click();
-
-      await expect(page.getByRole('heading', { name: /set your home/i })).toBeVisible();
-      await page.getByRole('button', { name: /skip for now/i }).click();
-
-      await expect(page.getByRole('heading', { name: /reminders/i })).toBeVisible();
       const profileUpdateResponse = page.waitForResponse(
         (r) => r.url().includes('/rest/v1/profiles') && r.request().method() === 'PATCH',
       );
-      await page
-        .getByRole('button', { name: /maybe later|continue/i })
-        .first()
-        .click();
+      await page.getByRole('button', { name: 'Continue' }).click();
       await profileUpdateResponse;
     }
 
