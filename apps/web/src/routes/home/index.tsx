@@ -6,6 +6,7 @@ import { useDueToday } from '@/features/doses/useDueToday';
 import { DoseRow } from '@/features/doses/DoseRow';
 import { useProfile } from '@/features/profiles/useProfile';
 import { SignOutButton } from '@/features/auth/SignOutButton';
+import { BellToggle } from '@/features/notifications/BellToggle';
 import { StatusRing } from './StatusRing';
 
 export function HomePage(): ReactElement {
@@ -53,7 +54,10 @@ export function HomePage(): ReactElement {
           >
             Hello, {profile?.display_name ?? 'there'}
           </h1>
-          <SignOutButton />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <BellToggle />
+            <SignOutButton />
+          </div>
         </div>
         <StatusRing taken={takenCount} total={totalCount} />
       </header>
