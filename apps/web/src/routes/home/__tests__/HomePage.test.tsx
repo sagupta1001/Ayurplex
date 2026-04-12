@@ -23,6 +23,7 @@ vi.mock('@/features/profiles/useProfile', () => ({
     isLoading: false,
     error: null,
   }),
+  useUpdateProfile: () => ({ mutate: vi.fn(), isPending: false }),
 }));
 vi.mock('@/features/auth/SignOutButton', () => ({
   SignOutButton: () => <button type="button">Sign out</button>,
