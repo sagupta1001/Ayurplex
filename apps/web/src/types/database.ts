@@ -229,6 +229,42 @@ export type Database = {
         }
         Relationships: []
       }
+      prescriptions: {
+        Row: {
+          created_at: string
+          id: string
+          status: string
+          storage_path: string
+          updated_at: string
+          uploaded_at: string
+          user_id: string
+          vision_parsed: Json | null
+          vision_raw_response: Json | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          status?: string
+          storage_path: string
+          updated_at?: string
+          uploaded_at?: string
+          user_id: string
+          vision_parsed?: Json | null
+          vision_raw_response?: Json | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          status?: string
+          storage_path?: string
+          updated_at?: string
+          uploaded_at?: string
+          user_id?: string
+          vision_parsed?: Json | null
+          vision_raw_response?: Json | null
+        }
+        Relationships: []
+      }
       scheduled_doses: {
         Row: {
           adjusted_for: string | null

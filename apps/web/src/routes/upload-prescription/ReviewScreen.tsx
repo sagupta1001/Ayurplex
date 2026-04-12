@@ -46,10 +46,12 @@ export function ReviewScreen(): ReactElement {
   const handleConfirm = useCallback(
     async (index: number, data: ConfirmedMedData) => {
       // Create medication
-      const today = new Date().toISOString().split('T')[0];
-      const endDate = data.duration_days
+      const todayRaw = new Date().toISOString().split('T')[0];
+      const today: string = todayRaw ?? new Date().toISOString().slice(0, 10);
+      const endDateRaw = data.duration_days
         ? new Date(Date.now() + data.duration_days * 86400000).toISOString().split('T')[0]
         : null;
+      const endDate: string | null = endDateRaw ?? null;
 
       const medication = await createMedication({
         name: data.name,
