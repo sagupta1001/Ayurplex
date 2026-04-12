@@ -118,3 +118,25 @@ export interface ScheduledDoseInsert {
   adjustment_reason: DoseAdjustmentReason;
   status: DoseStatus;
 }
+
+// ---------------------------------------------------------------------------
+// Plan 4 — Web Push Notifications
+// ---------------------------------------------------------------------------
+
+/** A push subscription row stored in the database. */
+export interface PushSubscriptionRow {
+  id: string;
+  user_id: string;
+  endpoint: string;
+  p256dh: string;
+  auth: string;
+  created_at: string;
+}
+
+/** Insert shape for push_subscriptions. */
+export interface PushSubscriptionInsert {
+  user_id: string;
+  endpoint: string;
+  p256dh: string;
+  auth: string;
+}
