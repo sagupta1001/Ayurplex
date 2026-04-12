@@ -22,6 +22,7 @@
 ## Task 1: Initialize pnpm workspace, Turborepo, and base TypeScript config
 
 **Files:**
+
 - Create: `package.json`, `pnpm-workspace.yaml`, `turbo.json`, `tsconfig.base.json`, `.nvmrc`
 - Modify: `.gitignore`
 
@@ -69,8 +70,8 @@ Create `pnpm-workspace.yaml`:
 
 ```yaml
 packages:
-  - "apps/*"
-  - "packages/*"
+  - 'apps/*'
+  - 'packages/*'
 ```
 
 - [ ] **Step 4: Configure Turborepo pipelines**
@@ -199,6 +200,7 @@ git commit -m "chore: initialize pnpm workspace + turborepo + ts base"
 ## Task 2: Scaffold `packages/shared` with domain type stubs (TDD)
 
 **Files:**
+
 - Create: `packages/shared/package.json`, `packages/shared/tsconfig.json`, `packages/shared/vitest.config.ts`, `packages/shared/src/index.ts`, `packages/shared/src/types.ts`, `packages/shared/src/types.test.ts`
 
 - [ ] **Step 1: Create `packages/shared/package.json`**
@@ -341,6 +343,7 @@ git commit -m "feat(shared): scaffold @ayurplex/shared with UserId branded type"
 ## Task 3: Scaffold `packages/ui` with Priya's design tokens
 
 **Files:**
+
 - Create: `packages/ui/package.json`, `packages/ui/tsconfig.json`, `packages/ui/src/index.ts`, `packages/ui/src/theme.ts`, `packages/ui/src/theme.test.ts`, `packages/ui/vitest.config.ts`
 
 - [ ] **Step 1: Create `packages/ui/package.json`**
@@ -406,7 +409,7 @@ import { describe, it, expect } from 'vitest';
 import { theme } from './theme';
 
 describe('theme', () => {
-  it('exposes Priya\'s primary forest green', () => {
+  it("exposes Priya's primary forest green", () => {
     expect(theme.colors.primary).toBe('#007972');
   });
 
@@ -478,7 +481,7 @@ Create `packages/ui/src/theme.ts`:
 export const theme = {
   colors: {
     // Primary palette
-    primary: '#007972',       // Forest Green
+    primary: '#007972', // Forest Green
     leafyGreen: '#19AFA2',
     darkGreen: '#4D9999',
     secondaryBlue: '#27879F',
@@ -553,6 +556,7 @@ git commit -m "feat(ui): add @ayurplex/ui with Priya's design tokens"
 ## Task 4: Scaffold `apps/web` with Vite + React + TypeScript
 
 **Files:**
+
 - Create: `apps/web/package.json`, `apps/web/tsconfig.json`, `apps/web/tsconfig.node.json`, `apps/web/vite.config.ts`, `apps/web/index.html`, `apps/web/src/main.tsx`, `apps/web/src/App.tsx`, `apps/web/src/index.css`, `apps/web/public/manifest.webmanifest`
 
 - [ ] **Step 1: Create `apps/web/package.json`**
@@ -723,7 +727,11 @@ export function App(): JSX.Element {
 
 body {
   margin: 0;
-  font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+  font-family:
+    'Roboto',
+    system-ui,
+    -apple-system,
+    sans-serif;
 }
 ```
 
@@ -753,6 +761,7 @@ git commit -m "feat(web): scaffold Vite + React + TS app shell"
 ## Task 5: Add Tailwind CSS wired to `@ayurplex/ui` theme tokens
 
 **Files:**
+
 - Create: `apps/web/tailwind.config.ts`, `apps/web/postcss.config.cjs`
 - Modify: `apps/web/package.json`, `apps/web/src/index.css`, `apps/web/src/App.tsx`
 
@@ -807,11 +816,7 @@ import type { Config } from 'tailwindcss';
 import { theme } from '@ayurplex/ui/theme';
 
 const config: Config = {
-  content: [
-    './index.html',
-    './src/**/*.{ts,tsx}',
-    '../../packages/ui/src/**/*.{ts,tsx}',
-  ],
+  content: ['./index.html', './src/**/*.{ts,tsx}', '../../packages/ui/src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
@@ -866,7 +871,11 @@ export default config;
 
   body {
     margin: 0;
-    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    font-family:
+      'Roboto',
+      system-ui,
+      -apple-system,
+      sans-serif;
   }
 
   h1,
@@ -874,7 +883,11 @@ export default config;
   h3,
   h4,
   h5 {
-    font-family: 'Lexend', system-ui, -apple-system, sans-serif;
+    font-family:
+      'Lexend',
+      system-ui,
+      -apple-system,
+      sans-serif;
   }
 }
 ```
@@ -911,6 +924,7 @@ git commit -m "feat(web): wire Tailwind to @ayurplex/ui design tokens"
 ## Task 6: TDD — `App.test.tsx` with Vitest + React Testing Library
 
 **Files:**
+
 - Create: `apps/web/vitest.config.ts`, `apps/web/src/test-setup.ts`, `apps/web/src/App.test.tsx`
 - Modify: `apps/web/package.json`, `apps/web/src/App.tsx`
 
@@ -1043,6 +1057,7 @@ git commit -m "test(web): TDD Hello Ayurplex App component"
 This task addresses spec risk R5 (timezone bugs). All timestamps in Ayurplex are stored as UTC and must be rendered in the user's IANA timezone via this single wrapper. No raw `Date` math is allowed elsewhere.
 
 **Files:**
+
 - Create: `apps/web/src/lib/date.test.ts`, `apps/web/src/lib/date.ts`
 - Modify: `apps/web/package.json`
 
@@ -1098,23 +1113,17 @@ describe('formatTime', () => {
 describe('isWithinWindow', () => {
   it('returns true when the UTC time falls inside the zoned window', () => {
     // 14:00 UTC = 10:00 EDT Toronto; window 08:00-11:00 local
-    expect(
-      isWithinWindow('2026-06-15T14:00:00Z', '08:00', '11:00', 'America/Toronto'),
-    ).toBe(true);
+    expect(isWithinWindow('2026-06-15T14:00:00Z', '08:00', '11:00', 'America/Toronto')).toBe(true);
   });
 
   it('returns false when the UTC time falls outside the zoned window', () => {
     // 14:00 UTC = 10:00 EDT Toronto; window 11:30-13:00 local → outside
-    expect(
-      isWithinWindow('2026-06-15T14:00:00Z', '11:30', '13:00', 'America/Toronto'),
-    ).toBe(false);
+    expect(isWithinWindow('2026-06-15T14:00:00Z', '11:30', '13:00', 'America/Toronto')).toBe(false);
   });
 
   it('handles a window that has already closed for the day', () => {
     // 23:00 UTC = 19:00 EDT; window 08:00-11:00 → outside
-    expect(
-      isWithinWindow('2026-06-15T23:00:00Z', '08:00', '11:00', 'America/Toronto'),
-    ).toBe(false);
+    expect(isWithinWindow('2026-06-15T23:00:00Z', '08:00', '11:00', 'America/Toronto')).toBe(false);
   });
 });
 ```
@@ -1204,6 +1213,7 @@ git commit -m "feat(web): add timezone-aware lib/date.ts (R5)"
 ## Task 8: Create `lib/supabase.ts` client singleton (TDD)
 
 **Files:**
+
 - Create: `apps/web/src/lib/supabase.test.ts`, `apps/web/src/lib/supabase.ts`, `apps/web/.env.example`
 - Modify: `apps/web/package.json`, `apps/web/src/vite-env.d.ts`
 
@@ -1334,6 +1344,7 @@ git commit -m "feat(web): add supabase client singleton with env validation"
 ## Task 9: Create placeholder source directories with `.gitkeep`
 
 **Files:**
+
 - Create: `.gitkeep` in each route, feature, and top-level src subfolder.
 
 - [ ] **Step 1: Create directories and `.gitkeep` files**
@@ -1394,6 +1405,7 @@ git commit -m "chore(web): scaffold route + feature directories"
 ## Task 10: Add Capacitor config (no native projects generated)
 
 **Files:**
+
 - Create: `apps/web/capacitor.config.ts`
 - Modify: `apps/web/package.json`
 
@@ -1452,6 +1464,7 @@ git commit -m "chore(web): add Capacitor config (no native projects yet)"
 ## Task 11: Initialize Supabase local dev config
 
 **Files:**
+
 - Create: `supabase/config.toml`, `supabase/seed.sql`, `supabase/migrations/0001_init.sql`
 
 - [ ] **Step 1: Create `supabase/config.toml`**
@@ -1549,6 +1562,7 @@ git commit -m "feat(supabase): add local dev config and 0001 extensions migratio
 ## Task 12: ESLint + Prettier with TypeScript strict rules
 
 **Files:**
+
 - Create: `.eslintrc.cjs`, `.prettierrc`, `.eslintignore`, `.prettierignore`
 - Modify: root `package.json` (add lint devDeps), `apps/web/package.json` (lint script already present)
 
@@ -1697,6 +1711,7 @@ git commit -m "chore: add eslint + prettier config with strict TS rules"
 ## Task 13: Playwright smoke test for "Hello Ayurplex"
 
 **Files:**
+
 - Create: `apps/web/playwright.config.ts`, `apps/web/e2e/smoke.spec.ts`
 - Modify: `apps/web/package.json`
 
@@ -1801,6 +1816,7 @@ git commit -m "test(web): add Playwright smoke test for Hello Ayurplex"
 ## Task 14: GitHub Actions CI workflow
 
 **Files:**
+
 - Create: `.github/workflows/ci.yml`
 
 - [ ] **Step 1: Create `.github/workflows/ci.yml`**
@@ -1873,11 +1889,12 @@ git commit -m "ci: add GitHub Actions workflow for build/test/lint"
 ## Task 15: README with dev quickstart
 
 **Files:**
+
 - Create (or overwrite): `README.md`
 
 - [ ] **Step 1: Write `README.md`**
 
-```markdown
+````markdown
 # Ayurplex
 
 Smart adaptive medication reminders. A React + Vite PWA (wrapped with Capacitor for iOS/Android) backed by Supabase. The scheduling engine is deterministic and rule-based — no LLM for safety-critical decisions.
@@ -1902,6 +1919,7 @@ pnpm install
 cp apps/web/.env.example apps/web/.env.local   # fill in Supabase URL + anon key after `supabase start`
 pnpm --filter @ayurplex/web dev
 ```
+````
 
 Open http://localhost:5173 — you should see a "Hello Ayurplex" screen in Priya's forest green.
 
@@ -1960,14 +1978,15 @@ These land in subsequent plans — see `docs/superpowers/plans/`.
 ## License
 
 Proprietary — all rights reserved (TBD for OSS release).
-```
+
+````
 
 - [ ] **Step 2: Commit**
 
 ```bash
 git add README.md
 git commit -m "docs: add README with dev quickstart"
-```
+````
 
 ---
 
@@ -2064,16 +2083,16 @@ At the end of this plan, all of the following must be true:
 
 ## What's deferred (handoff to future plans)
 
-| Deferred item | Rationale | Planned plan |
-|---|---|---|
-| Google OAuth + Supabase Auth | Needs auth flow design | Plan 2 |
-| `users`, `profiles`, `rooms` tables + RLS | Needs auth first | Plan 2 |
-| `medications`, `medication_schedules` tables | After auth | Plan 3 |
-| `scheduled_doses` + rule engine | After medications | Plan 4 |
-| Edge Functions (`parse-prescription`, `schedule-reminders`, `refresh-calendar`, `dispatch-push`) | After schema | Plans 4–6 |
-| Native iOS / Android Capacitor projects | Needs Xcode/Android Studio + signing | Plan 7 (pre-release) |
-| Playwright E2E in CI | Needs more than one screen to test | Plan 3+ |
-| `packages/shared/rule-engine` | Unit-tested in isolation | Plan 4 |
+| Deferred item                                                                                    | Rationale                            | Planned plan         |
+| ------------------------------------------------------------------------------------------------ | ------------------------------------ | -------------------- |
+| Google OAuth + Supabase Auth                                                                     | Needs auth flow design               | Plan 2               |
+| `users`, `profiles`, `rooms` tables + RLS                                                        | Needs auth first                     | Plan 2               |
+| `medications`, `medication_schedules` tables                                                     | After auth                           | Plan 3               |
+| `scheduled_doses` + rule engine                                                                  | After medications                    | Plan 4               |
+| Edge Functions (`parse-prescription`, `schedule-reminders`, `refresh-calendar`, `dispatch-push`) | After schema                         | Plans 4–6            |
+| Native iOS / Android Capacitor projects                                                          | Needs Xcode/Android Studio + signing | Plan 7 (pre-release) |
+| Playwright E2E in CI                                                                             | Needs more than one screen to test   | Plan 3+              |
+| `packages/shared/rule-engine`                                                                    | Unit-tested in isolation             | Plan 4               |
 
 ---
 

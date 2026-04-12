@@ -75,6 +75,7 @@ apps/web/e2e/add-medication.spec.ts                             NEW
 ## Task 1: Migration — `medications`, `medication_schedules`, `scheduled_doses`
 
 **Files:**
+
 - Create: `supabase/migrations/0004_medications_schedules_doses.sql`
 
 - [ ] **Step 1: Create the migration file**
@@ -319,6 +320,7 @@ git commit -m "feat(db): add medications, schedules, and scheduled_doses tables 
 ## Task 2: Regenerate Supabase types and extend `packages/shared/src/types.ts`
 
 **Files:**
+
 - Regenerate: `apps/web/src/types/database.ts`
 - Modify: `packages/shared/src/types.ts`
 - Create: `packages/shared/src/__tests__/types.test.ts`
@@ -365,18 +367,14 @@ export type DayOfWeek = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 /** A [start, end] time window expressed in 24h HH:MM local time. */
 export interface TimeWindow {
   window_start: string; // e.g. "08:00"
-  window_end: string;   // e.g. "11:00"
+  window_end: string; // e.g. "11:00"
 }
 
 /** Status of a materialized scheduled dose. */
 export type DoseStatus = 'pending' | 'taken' | 'skipped' | 'missed';
 
 /** Reason the rule engine adjusted a dose (Plan 3 always writes 'none'). */
-export type DoseAdjustmentReason =
-  | 'meeting_conflict'
-  | 'travel'
-  | 'quiet_hours'
-  | 'none';
+export type DoseAdjustmentReason = 'meeting_conflict' | 'travel' | 'quiet_hours' | 'none';
 
 /** Channel through which a dose was logged as taken. */
 export type TakenVia = 'manual' | 'voice' | 'auto';
@@ -418,7 +416,7 @@ export interface ScheduledDose {
   user_id: string;
   medication_id: string;
   schedule_id: string;
-  scheduled_for: string;        // ISO UTC timestamptz
+  scheduled_for: string; // ISO UTC timestamptz
   adjusted_for: string | null;
   adjustment_reason: DoseAdjustmentReason | null;
   status: DoseStatus;
@@ -535,6 +533,7 @@ git commit -m "feat(shared): export medication domain types"
 ## Task 3: TDD — Medications API
 
 **Files:**
+
 - Create: `apps/web/src/features/medications/api.ts`
 - Create: `apps/web/src/features/medications/__tests__/api.test.ts`
 
@@ -722,11 +721,7 @@ export async function listActiveMedications(): Promise<Medication[]> {
 
 /** Get a single medication by id (RLS ensures it belongs to the current user). */
 export async function getMedicationById(id: string): Promise<Medication> {
-  const { data, error } = await supabase
-    .from('medications')
-    .select('*')
-    .eq('id', id)
-    .single();
+  const { data, error } = await supabase.from('medications').select('*').eq('id', id).single();
   if (error) throw error;
   return data as Medication;
 }
@@ -776,6 +771,7 @@ git commit -m "feat(medications): add typed Supabase API with TDD"
 ## Task 4: TDD — `useMedications` TanStack Query hook
 
 **Files:**
+
 - Create: `apps/web/src/features/medications/useMedications.ts`
 - Create: `apps/web/src/features/medications/__tests__/useMedications.test.tsx`
 
@@ -859,11 +855,7 @@ Create `apps/web/src/features/medications/useMedications.ts`:
 ```ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Medication, MedicationInput } from '@ayurplex/shared';
-import {
-  listActiveMedications,
-  createMedication,
-  deactivateMedication,
-} from './api';
+import { listActiveMedications, createMedication, deactivateMedication } from './api';
 
 export const MEDICATIONS_QUERY_KEY = ['medications', 'active'] as const;
 
@@ -926,6 +918,7 @@ git commit -m "feat(medications): add useMedications TanStack Query hook"
 ## Task 5: TDD — Schedules API + naive dose materialization
 
 **Files:**
+
 - Create: `apps/web/src/features/schedules/materializeDoses.ts`
 - Create: `apps/web/src/features/schedules/__tests__/materializeDoses.test.ts`
 - Create: `apps/web/src/features/schedules/api.ts`
@@ -939,10 +932,7 @@ Create `apps/web/src/features/schedules/__tests__/materializeDoses.test.ts`:
 
 ```ts
 import { describe, it, expect } from 'vitest';
-import type {
-  MedicationScheduleInput,
-  ScheduledDoseInsert,
-} from '@ayurplex/shared';
+import type { MedicationScheduleInput, ScheduledDoseInsert } from '@ayurplex/shared';
 import { materializeDoses } from '../materializeDoses';
 
 const baseCtx = {
@@ -999,8 +989,8 @@ describe('materializeDoses', () => {
     }
     expect(byDay.get('2026-04-18')).toBeUndefined(); // Saturday
     expect(byDay.get('2026-04-19')).toBeUndefined(); // Sunday
-    expect(byDay.get('2026-04-13')).toBe(2);         // Monday
-    expect(byDay.get('2026-04-17')).toBe(2);         // Friday
+    expect(byDay.get('2026-04-13')).toBe(2); // Monday
+    expect(byDay.get('2026-04-17')).toBe(2); // Friday
   });
 
   it('stores scheduled_for as UTC even in a non-local timezone', () => {
@@ -1178,11 +1168,7 @@ Create `apps/web/src/features/schedules/__tests__/api.test.ts`:
 
 ```ts
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type {
-  Medication,
-  MedicationScheduleInput,
-  MedicationSchedule,
-} from '@ayurplex/shared';
+import type { Medication, MedicationScheduleInput, MedicationSchedule } from '@ayurplex/shared';
 import { createSchedule } from '../api';
 import { supabase } from '../../../lib/supabase';
 
@@ -1332,11 +1318,7 @@ pnpm --filter @ayurplex/web test -- src/features/schedules/__tests__/api.test.ts
 Create `apps/web/src/features/schedules/api.ts`:
 
 ```ts
-import type {
-  Medication,
-  MedicationSchedule,
-  MedicationScheduleInput,
-} from '@ayurplex/shared';
+import type { Medication, MedicationSchedule, MedicationScheduleInput } from '@ayurplex/shared';
 import { supabase } from '../../lib/supabase';
 import { materializeDoses, type MaterializeDosesContext } from './materializeDoses';
 
@@ -1389,17 +1371,11 @@ export async function createSchedule(
 
   const doses = materializeDoses(input, ctx);
 
-  const { error: dosesError } = await supabase
-    .from('scheduled_doses')
-    .insert(doses)
-    .select('id');
+  const { error: dosesError } = await supabase.from('scheduled_doses').insert(doses).select('id');
 
   if (dosesError) {
     // Roll back the schedule row (best effort).
-    await supabase
-      .from('medication_schedules')
-      .delete()
-      .eq('id', schedule.id);
+    await supabase.from('medication_schedules').delete().eq('id', schedule.id);
     throw dosesError;
   }
 
@@ -1427,6 +1403,7 @@ git commit -m "feat(schedules): add naive dose materializer and createSchedule A
 ## Task 6: TDD — Doses API (`listDueToday`, `markTaken`, `markSkipped`)
 
 **Files:**
+
 - Create: `apps/web/src/features/doses/api.ts`
 - Create: `apps/web/src/features/doses/__tests__/api.test.ts`
 
@@ -1570,9 +1547,7 @@ async function requireUserId(): Promise<string> {
  * Return all scheduled_doses whose `scheduled_for` falls inside today
  * (local calendar day in `options.timezone`), newest first.
  */
-export async function listDueToday(
-  options: ListDueTodayOptions,
-): Promise<ScheduledDose[]> {
+export async function listDueToday(options: ListDueTodayOptions): Promise<ScheduledDose[]> {
   const userId = await requireUserId();
   const now = options.now ?? new Date();
   const startLocal = startOfLocalDay(now, options.timezone);
@@ -1648,6 +1623,7 @@ git commit -m "feat(doses): add listDueToday, markTaken, markSkipped API"
 ## Task 7: TDD — `useDueToday` hook with optimistic updates
 
 **Files:**
+
 - Create: `apps/web/src/features/doses/useDueToday.ts`
 - Create: `apps/web/src/features/doses/__tests__/useDueToday.test.tsx`
 
@@ -1706,10 +1682,9 @@ describe('useDueToday', () => {
       { ...pendingDose, id: 'dose-2', status: 'taken' },
     ]);
 
-    const { result } = renderHook(
-      () => useDueToday({ timezone: 'America/Toronto' }),
-      { wrapper: makeWrapper() },
-    );
+    const { result } = renderHook(() => useDueToday({ timezone: 'America/Toronto' }), {
+      wrapper: makeWrapper(),
+    });
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.doses).toHaveLength(2);
@@ -1719,14 +1694,14 @@ describe('useDueToday', () => {
 
   it('optimistically flips status to taken on markTaken', async () => {
     (listDueToday as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([pendingDose]);
-    (markTaken as unknown as ReturnType<typeof vi.fn>).mockImplementation(
-      async () => ({ ...pendingDose, status: 'taken' }),
-    );
+    (markTaken as unknown as ReturnType<typeof vi.fn>).mockImplementation(async () => ({
+      ...pendingDose,
+      status: 'taken',
+    }));
 
-    const { result } = renderHook(
-      () => useDueToday({ timezone: 'America/Toronto' }),
-      { wrapper: makeWrapper() },
-    );
+    const { result } = renderHook(() => useDueToday({ timezone: 'America/Toronto' }), {
+      wrapper: makeWrapper(),
+    });
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
@@ -1786,15 +1761,10 @@ export function useDueToday(options: UseDueTodayOptions): UseDueTodayResult {
     mutationFn: (doseId: string) => markTaken(doseId),
     onMutate: async (doseId) => {
       await qc.cancelQueries({ queryKey: DOSES_TODAY_QUERY_KEY });
-      const previous =
-        qc.getQueryData<ScheduledDose[]>(DOSES_TODAY_QUERY_KEY) ?? [];
+      const previous = qc.getQueryData<ScheduledDose[]>(DOSES_TODAY_QUERY_KEY) ?? [];
       qc.setQueryData<ScheduledDose[]>(
         DOSES_TODAY_QUERY_KEY,
-        previous.map((d) =>
-          d.id === doseId
-            ? { ...d, status: 'taken', taken_via: 'manual' }
-            : d,
-        ),
+        previous.map((d) => (d.id === doseId ? { ...d, status: 'taken', taken_via: 'manual' } : d)),
       );
       return { previous };
     },
@@ -1812,8 +1782,7 @@ export function useDueToday(options: UseDueTodayOptions): UseDueTodayResult {
     mutationFn: (doseId: string) => markSkipped(doseId),
     onMutate: async (doseId) => {
       await qc.cancelQueries({ queryKey: DOSES_TODAY_QUERY_KEY });
-      const previous =
-        qc.getQueryData<ScheduledDose[]>(DOSES_TODAY_QUERY_KEY) ?? [];
+      const previous = qc.getQueryData<ScheduledDose[]>(DOSES_TODAY_QUERY_KEY) ?? [];
       qc.setQueryData<ScheduledDose[]>(
         DOSES_TODAY_QUERY_KEY,
         previous.map((d) => (d.id === doseId ? { ...d, status: 'skipped' } : d)),
@@ -1873,6 +1842,7 @@ git commit -m "feat(doses): add useDueToday hook with optimistic markTaken"
 ## Task 8: TDD — `StatusRing` component
 
 **Files:**
+
 - Create: `apps/web/src/routes/home/StatusRing.tsx`
 - Create: `apps/web/src/routes/home/__tests__/StatusRing.test.tsx`
 
@@ -1976,13 +1946,7 @@ export function StatusRing({ taken, total, size = 160 }: StatusRingProps) {
           strokeDasharray={`${filled} ${gap}`}
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
         />
-        <text
-          x="50%"
-          y="50%"
-          dominantBaseline="central"
-          textAnchor="middle"
-          style={labelStyle}
-        >
+        <text x="50%" y="50%" dominantBaseline="central" textAnchor="middle" style={labelStyle}>
           {taken}/{total}
         </text>
       </svg>
@@ -2011,6 +1975,7 @@ git commit -m "feat(home): add StatusRing SVG component in Priya's teal"
 ## Task 9: TDD — `DoseRow` component
 
 **Files:**
+
 - Create: `apps/web/src/features/doses/DoseRow.tsx`
 - Create: `apps/web/src/features/doses/__tests__/DoseRow.test.tsx`
 
@@ -2095,12 +2060,7 @@ export interface DoseRowProps {
   onMarkTaken: (doseId: string) => void;
 }
 
-export function DoseRow({
-  dose,
-  medicationName,
-  timezone,
-  onMarkTaken,
-}: DoseRowProps) {
+export function DoseRow({ dose, medicationName, timezone, onMarkTaken }: DoseRowProps) {
   const time = formatLocalTime(new Date(dose.scheduled_for), timezone);
   const isTaken = dose.status === 'taken';
 
@@ -2199,6 +2159,7 @@ git commit -m "feat(doses): add DoseRow component with mark-as-taken button"
 ## Task 10: Update Home Dashboard route to use real data
 
 **Files:**
+
 - Modify: `apps/web/src/routes/home/index.tsx`
 - Create: `apps/web/src/routes/home/__tests__/home.test.tsx`
 - Create: `apps/web/src/features/medications/MedicationListItem.tsx`
@@ -2586,6 +2547,7 @@ git commit -m "feat(home): wire Home Dashboard to real doses and medications"
 ## Task 11: TDD — `AppleMealIcon` component (4 states)
 
 **Files:**
+
 - Create: `apps/web/src/components/Icon/AppleMealIcon.tsx`
 - Create: `apps/web/src/components/Icon/__tests__/AppleMealIcon.test.tsx`
 
@@ -2681,17 +2643,24 @@ export function AppleMealIcon({ state, size = 64 }: AppleMealIconProps) {
         fill={fill}
       />
       {/* State-specific decoration */}
-      {state === 'before' && (
-        <circle cx="48" cy="28" r="4" fill="#FFFFFF" opacity="0.8" />
-      )}
+      {state === 'before' && <circle cx="48" cy="28" r="4" fill="#FFFFFF" opacity="0.8" />}
       {state === 'with' && (
-        <path d="M22 36 L30 44 L44 28" stroke="#FFFFFF" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        <path
+          d="M22 36 L30 44 L44 28"
+          stroke="#FFFFFF"
+          strokeWidth="3"
+          fill="none"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       )}
       {state === 'after' && (
         <path d="M44 22 a8 8 0 0 0 -8 8 L52 30 Z" fill="#FFFFFF" opacity="0.9" />
       )}
       {state === 'any' && (
-        <text x="32" y="44" textAnchor="middle" fontSize="20" fontFamily="Lexend" fill="#FFFFFF">∗</text>
+        <text x="32" y="44" textAnchor="middle" fontSize="20" fontFamily="Lexend" fill="#FFFFFF">
+          ∗
+        </text>
       )}
     </svg>
   );
@@ -2718,6 +2687,7 @@ git commit -m "feat(ui): add AppleMealIcon with 4 meal-relationship states"
 ## Task 12: Zod schemas for the Add Med wizard
 
 **Files:**
+
 - Create: `apps/web/src/routes/add-med/schema.ts`
 - Create: `apps/web/src/routes/add-med/__tests__/schema.test.ts`
 
@@ -2774,9 +2744,7 @@ describe('Add Med schemas', () => {
     for (const m of ['before', 'with', 'after', 'any'] as const) {
       expect(mealStepSchema.safeParse({ meal_relationship: m }).success).toBe(true);
     }
-    expect(mealStepSchema.safeParse({ meal_relationship: 'later' }).success).toBe(
-      false,
-    );
+    expect(mealStepSchema.safeParse({ meal_relationship: 'later' }).success).toBe(false);
   });
 
   it('scheduleStepSchema requires at least one window with end >= start', () => {
@@ -2805,9 +2773,7 @@ describe('Add Med schemas', () => {
 
   it('roomStepSchema allows null room', () => {
     expect(roomStepSchema.safeParse({ preferred_room_id: null }).success).toBe(true);
-    expect(
-      roomStepSchema.safeParse({ preferred_room_id: 'some-uuid' }).success,
-    ).toBe(true);
+    expect(roomStepSchema.safeParse({ preferred_room_id: 'some-uuid' }).success).toBe(true);
   });
 
   it('dateRangeStepSchema requires start_date and allows null end', () => {
@@ -2881,16 +2847,26 @@ const timeWindowSchema = z
     window_start: z.string().regex(TIME_RE, 'Use HH:MM 24h format'),
     window_end: z.string().regex(TIME_RE, 'Use HH:MM 24h format'),
   })
-  .refine(
-    (w) => w.window_end >= w.window_start,
-    { message: 'End must be after start', path: ['window_end'] },
-  );
+  .refine((w) => w.window_end >= w.window_start, {
+    message: 'End must be after start',
+    path: ['window_end'],
+  });
 
 export const scheduleStepSchema = z.object({
   frequency: z.enum(['daily', 'weekly', 'as_needed']),
   times_of_day: z.array(timeWindowSchema).min(1, 'Add at least one time window'),
   days_of_week: z
-    .array(z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5), z.literal(6), z.literal(7)]))
+    .array(
+      z.union([
+        z.literal(1),
+        z.literal(2),
+        z.literal(3),
+        z.literal(4),
+        z.literal(5),
+        z.literal(6),
+        z.literal(7),
+      ]),
+    )
     .min(1, 'Select at least one day'),
 });
 
@@ -2903,10 +2879,10 @@ export const dateRangeStepSchema = z
     start_date: z.string().regex(ISO_DATE_RE, 'Use YYYY-MM-DD'),
     end_date: z.string().regex(ISO_DATE_RE).nullable(),
   })
-  .refine(
-    (v) => v.end_date === null || v.end_date >= v.start_date,
-    { message: 'End date must be on or after start date', path: ['end_date'] },
-  );
+  .refine((v) => v.end_date === null || v.end_date >= v.start_date, {
+    message: 'End date must be on or after start date',
+    path: ['end_date'],
+  });
 
 export const addMedFormSchema = z.object({
   name: z.string().min(1),
@@ -2918,7 +2894,17 @@ export const addMedFormSchema = z.object({
   frequency: z.enum(['daily', 'weekly', 'as_needed']),
   times_of_day: z.array(timeWindowSchema).min(1),
   days_of_week: z
-    .array(z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5), z.literal(6), z.literal(7)]))
+    .array(
+      z.union([
+        z.literal(1),
+        z.literal(2),
+        z.literal(3),
+        z.literal(4),
+        z.literal(5),
+        z.literal(6),
+        z.literal(7),
+      ]),
+    )
     .min(1),
   preferred_room_id: z.string().uuid().nullable(),
   start_date: z.string().regex(ISO_DATE_RE),
@@ -2946,6 +2932,7 @@ git commit -m "feat(add-med): add Zod schemas for each wizard step"
 ## Task 13: TDD — Add Med wizard state machine
 
 **Files:**
+
 - Create: `apps/web/src/routes/add-med/AddMedWizard.tsx`
 - Create: `apps/web/src/routes/add-med/__tests__/AddMedWizard.test.tsx`
 
@@ -3117,10 +3104,7 @@ export function AddMedWizard({ onSubmit, onClose, initial }: AddMedWizardProps) 
 
   const currentStep: StepId = STEPS[state.step];
 
-  const next = useCallback(
-    (patch: PartialAddMedData) => dispatch({ type: 'next', patch }),
-    [],
-  );
+  const next = useCallback((patch: PartialAddMedData) => dispatch({ type: 'next', patch }), []);
   const back = useCallback(() => dispatch({ type: 'back' }), []);
 
   const handleSubmit = useCallback(() => {
@@ -3157,24 +3141,16 @@ export function AddMedWizard({ onSubmit, onClose, initial }: AddMedWizardProps) 
       </header>
 
       <div style={{ padding: '0 16px' }}>
-        {currentStep === 'name' && (
-          <NameStep data={state.data} onNext={next} />
-        )}
-        {currentStep === 'dosage' && (
-          <DosageStep data={state.data} onNext={next} onBack={back} />
-        )}
+        {currentStep === 'name' && <NameStep data={state.data} onNext={next} />}
+        {currentStep === 'dosage' && <DosageStep data={state.data} onNext={next} onBack={back} />}
         {currentStep === 'meal' && (
           <MealRelationshipStep data={state.data} onNext={next} onBack={back} />
         )}
         {currentStep === 'schedule' && (
           <ScheduleStep data={state.data} onNext={next} onBack={back} />
         )}
-        {currentStep === 'room' && (
-          <RoomStep data={state.data} onNext={next} onBack={back} />
-        )}
-        {currentStep === 'dates' && (
-          <DateRangeStep data={state.data} onNext={next} onBack={back} />
-        )}
+        {currentStep === 'room' && <RoomStep data={state.data} onNext={next} onBack={back} />}
+        {currentStep === 'dates' && <DateRangeStep data={state.data} onNext={next} onBack={back} />}
         {currentStep === 'review' && (
           <ReviewStep data={state.data} onBack={back} onSubmit={handleSubmit} />
         )}
@@ -3253,6 +3229,7 @@ git commit -m "feat(add-med): add wizard state machine and step stubs"
 ## Task 14: `NameStep` — full implementation
 
 **Files:**
+
 - Modify: `apps/web/src/routes/add-med/steps/NameStep.tsx`
 - Create: `apps/web/src/routes/add-med/steps/__tests__/NameStep.test.tsx`
 
@@ -3335,9 +3312,7 @@ export function NameStep({ data, onNext }: StepProps) {
         What's the medication name?
       </h2>
       <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-        <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: 14 }}>
-          Medication name
-        </span>
+        <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: 14 }}>Medication name</span>
         <input
           aria-label="Medication name"
           {...register('name')}
@@ -3391,6 +3366,7 @@ git commit -m "feat(add-med): complete NameStep with React Hook Form + Zod"
 ## Task 15: `DosageStep` — full implementation
 
 **Files:**
+
 - Modify: `apps/web/src/routes/add-med/steps/DosageStep.tsx`
 - Create: `apps/web/src/routes/add-med/steps/__tests__/DosageStep.test.tsx`
 
@@ -3431,9 +3407,7 @@ describe('DosageStep', () => {
     fireEvent.change(screen.getByLabelText(/amount/i), { target: { value: '0' } });
     fireEvent.change(screen.getByLabelText(/unit/i), { target: { value: 'mg' } });
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
-    await vi.waitFor(() =>
-      expect(screen.getByText(/greater than 0/i)).toBeInTheDocument(),
-    );
+    await vi.waitFor(() => expect(screen.getByText(/greater than 0/i)).toBeInTheDocument());
     expect(onNext).not.toHaveBeenCalled();
   });
 });
@@ -3528,11 +3502,7 @@ export function DosageStep({ data, onNext, onBack }: StepProps) {
 
       <label>
         <span>Instructions (optional)</span>
-        <input
-          aria-label="Instructions"
-          type="text"
-          {...register('instructions')}
-        />
+        <input aria-label="Instructions" type="text" {...register('instructions')} />
       </label>
 
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -3564,6 +3534,7 @@ git commit -m "feat(add-med): complete DosageStep with validation"
 ## Task 16: `MealRelationshipStep` — full implementation with apple icons
 
 **Files:**
+
 - Modify: `apps/web/src/routes/add-med/steps/MealRelationshipStep.tsx`
 - Create: `apps/web/src/routes/add-med/__tests__/MealRelationshipStep.test.tsx`
 
@@ -3578,9 +3549,7 @@ import { MealRelationshipStep } from '../steps/MealRelationshipStep';
 
 describe('MealRelationshipStep', () => {
   it('renders an AppleMealIcon for each of the 4 options', () => {
-    render(
-      <MealRelationshipStep data={{}} onNext={() => undefined} onBack={() => undefined} />,
-    );
+    render(<MealRelationshipStep data={{}} onNext={() => undefined} onBack={() => undefined} />);
     expect(screen.getByLabelText(/before meal/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/with meal/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/after meal/i)).toBeInTheDocument();
@@ -3589,9 +3558,7 @@ describe('MealRelationshipStep', () => {
 
   it('calls onNext with the selected meal_relationship', () => {
     const onNext = vi.fn();
-    render(
-      <MealRelationshipStep data={{}} onNext={onNext} onBack={() => undefined} />,
-    );
+    render(<MealRelationshipStep data={{}} onNext={onNext} onBack={() => undefined} />);
     fireEvent.click(screen.getByLabelText(/with meal/i));
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
     expect(onNext).toHaveBeenCalledWith({ meal_relationship: 'with' });
@@ -3629,9 +3596,7 @@ const OPTIONS: { value: MealRelationship; label: string }[] = [
 ];
 
 export function MealRelationshipStep({ data, onNext, onBack }: StepProps) {
-  const [selected, setSelected] = useState<MealRelationship>(
-    data.meal_relationship ?? 'any',
-  );
+  const [selected, setSelected] = useState<MealRelationship>(data.meal_relationship ?? 'any');
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -3663,10 +3628,7 @@ export function MealRelationshipStep({ data, onNext, onBack }: StepProps) {
               alignItems: 'center',
               padding: 16,
               borderRadius: 16,
-              border:
-                selected === opt.value
-                  ? '2px solid #19AFA2'
-                  : '2px solid transparent',
+              border: selected === opt.value ? '2px solid #19AFA2' : '2px solid transparent',
               background: '#FFFFFF',
               cursor: 'pointer',
             }}
@@ -3698,10 +3660,7 @@ export function MealRelationshipStep({ data, onNext, onBack }: StepProps) {
         <button type="button" onClick={onBack}>
           Back
         </button>
-        <button
-          type="button"
-          onClick={() => onNext({ meal_relationship: selected })}
-        >
+        <button type="button" onClick={() => onNext({ meal_relationship: selected })}>
           Next
         </button>
       </div>
@@ -3728,6 +3687,7 @@ git commit -m "feat(add-med): complete MealRelationshipStep with apple icons"
 ## Task 17: `ScheduleStep` — full implementation
 
 **Files:**
+
 - Modify: `apps/web/src/routes/add-med/steps/ScheduleStep.tsx`
 - Create: `apps/web/src/routes/add-med/__tests__/ScheduleStep.test.tsx`
 
@@ -3816,15 +3776,11 @@ export function ScheduleStep({ data, onNext, onBack }: StepProps) {
   };
   const [start, setStart] = useState(initial.window_start);
   const [end, setEnd] = useState(initial.window_end);
-  const [days, setDays] = useState<DayOfWeek[]>(
-    (data.days_of_week as DayOfWeek[]) ?? [],
-  );
+  const [days, setDays] = useState<DayOfWeek[]>((data.days_of_week as DayOfWeek[]) ?? []);
   const [error, setError] = useState<string | null>(null);
 
   const toggleDay = (d: DayOfWeek) => {
-    setDays((prev) =>
-      prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d].sort(),
-    );
+    setDays((prev) => (prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d].sort()));
   };
 
   const handleNext = () => {
@@ -3926,6 +3882,7 @@ git commit -m "feat(add-med): complete ScheduleStep with time windows and days"
 ## Task 18: `RoomStep` — full implementation (+ `createRoom` API)
 
 **Files:**
+
 - Modify: `apps/web/src/features/rooms/api.ts` (add `createRoom`)
 - Modify: `apps/web/src/routes/add-med/steps/RoomStep.tsx`
 - Create: `apps/web/src/routes/add-med/steps/__tests__/RoomStep.test.tsx`
@@ -3990,8 +3947,22 @@ beforeEach(() => {
 describe('RoomStep', () => {
   it('lists rooms and lets the user select one', async () => {
     (listRooms as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([
-      { id: 'room-1', user_id: 'user-1', name: 'Kitchen', icon: null, created_at: '', updated_at: '' },
-      { id: 'room-2', user_id: 'user-1', name: 'Bedroom', icon: null, created_at: '', updated_at: '' },
+      {
+        id: 'room-1',
+        user_id: 'user-1',
+        name: 'Kitchen',
+        icon: null,
+        created_at: '',
+        updated_at: '',
+      },
+      {
+        id: 'room-2',
+        user_id: 'user-1',
+        name: 'Bedroom',
+        icon: null,
+        created_at: '',
+        updated_at: '',
+      },
     ]);
     const onNext = vi.fn();
 
@@ -4017,16 +3988,16 @@ describe('RoomStep', () => {
     const onNext = vi.fn();
     render(wrap(<RoomStep data={{}} onNext={onNext} onBack={() => undefined} />));
 
-    await waitFor(() => expect(screen.getByRole('button', { name: /add a new room/i })).toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /add a new room/i })).toBeInTheDocument(),
+    );
     fireEvent.click(screen.getByRole('button', { name: /add a new room/i }));
     fireEvent.change(screen.getByLabelText(/new room name/i), {
       target: { value: 'Office' },
     });
     fireEvent.click(screen.getByRole('button', { name: /create room/i }));
 
-    await waitFor(() =>
-      expect(createRoom).toHaveBeenCalledWith({ name: 'Office', icon: null }),
-    );
+    await waitFor(() => expect(createRoom).toHaveBeenCalledWith({ name: 'Office', icon: null }));
   });
 
   it('allows skipping room selection', async () => {
@@ -4065,9 +4036,7 @@ export interface StepProps {
 export function RoomStep({ data, onNext, onBack }: StepProps) {
   const qc = useQueryClient();
   const roomsQuery = useQuery({ queryKey: ['rooms'], queryFn: listRooms });
-  const [selected, setSelected] = useState<string | null>(
-    data.preferred_room_id ?? null,
-  );
+  const [selected, setSelected] = useState<string | null>(data.preferred_room_id ?? null);
   const [showNew, setShowNew] = useState(false);
   const [newName, setNewName] = useState('');
 
@@ -4104,10 +4073,7 @@ export function RoomStep({ data, onNext, onBack }: StepProps) {
                 textAlign: 'left',
                 padding: 12,
                 borderRadius: 12,
-                border:
-                  selected === r.id
-                    ? '2px solid #19AFA2'
-                    : '1px solid #E5F4F2',
+                border: selected === r.id ? '2px solid #19AFA2' : '1px solid #E5F4F2',
                 background: '#FFFFFF',
                 marginBottom: 8,
                 cursor: 'pointer',
@@ -4129,10 +4095,7 @@ export function RoomStep({ data, onNext, onBack }: StepProps) {
               onChange={(e) => setNewName(e.target.value)}
             />
           </label>
-          <button
-            type="button"
-            onClick={() => newName && createMut.mutate(newName)}
-          >
+          <button type="button" onClick={() => newName && createMut.mutate(newName)}>
             Create room
           </button>
         </div>
@@ -4146,10 +4109,7 @@ export function RoomStep({ data, onNext, onBack }: StepProps) {
         <button type="button" onClick={onBack}>
           Back
         </button>
-        <button
-          type="button"
-          onClick={() => onNext({ preferred_room_id: selected })}
-        >
+        <button type="button" onClick={() => onNext({ preferred_room_id: selected })}>
           Next
         </button>
       </div>
@@ -4176,6 +4136,7 @@ git commit -m "feat(add-med): complete RoomStep with inline createRoom"
 ## Task 19: `DateRangeStep` — full implementation
 
 **Files:**
+
 - Modify: `apps/web/src/routes/add-med/steps/DateRangeStep.tsx`
 - Create: `apps/web/src/routes/add-med/steps/__tests__/DateRangeStep.test.tsx`
 
@@ -4311,6 +4272,7 @@ git commit -m "feat(add-med): complete DateRangeStep"
 ## Task 20: `ReviewStep` — summary + save
 
 **Files:**
+
 - Modify: `apps/web/src/routes/add-med/steps/ReviewStep.tsx`
 - Create: `apps/web/src/routes/add-med/steps/__tests__/ReviewStep.test.tsx`
 
@@ -4340,9 +4302,7 @@ const fullData = {
 
 describe('ReviewStep', () => {
   it('renders a summary of all entered data', () => {
-    render(
-      <ReviewStep data={fullData} onSubmit={() => undefined} onBack={() => undefined} />,
-    );
+    render(<ReviewStep data={fullData} onSubmit={() => undefined} onBack={() => undefined} />);
     expect(screen.getByText(/metformin/i)).toBeInTheDocument();
     expect(screen.getByText(/500 mg/i)).toBeInTheDocument();
     expect(screen.getByText(/with meal/i)).toBeInTheDocument();
@@ -4352,9 +4312,7 @@ describe('ReviewStep', () => {
 
   it('invokes onSubmit when Save medication is clicked', () => {
     const onSubmit = vi.fn();
-    render(
-      <ReviewStep data={fullData} onSubmit={onSubmit} onBack={() => undefined} />,
-    );
+    render(<ReviewStep data={fullData} onSubmit={onSubmit} onBack={() => undefined} />);
     fireEvent.click(screen.getByRole('button', { name: /save medication/i }));
     expect(onSubmit).toHaveBeenCalledTimes(1);
   });
@@ -4391,9 +4349,7 @@ export function ReviewStep({ data, onSubmit, onBack }: StepProps) {
   const windows = data.times_of_day ?? [];
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <h2 style={{ fontFamily: 'Lexend, sans-serif', fontSize: 22, color: '#092C4C' }}>
-        Review
-      </h2>
+      <h2 style={{ fontFamily: 'Lexend, sans-serif', fontSize: 22, color: '#092C4C' }}>Review</h2>
       <dl style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', rowGap: 8 }}>
         <dt>Name</dt>
         <dd>{data.name}</dd>
@@ -4406,11 +4362,7 @@ export function ReviewStep({ data, onSubmit, onBack }: StepProps) {
         <dt>Meal</dt>
         <dd>{data.meal_relationship ? MEAL_LABEL[data.meal_relationship] : '—'}</dd>
         <dt>Windows</dt>
-        <dd>
-          {windows
-            .map((w) => `${w.window_start} – ${w.window_end}`)
-            .join(', ')}
-        </dd>
+        <dd>{windows.map((w) => `${w.window_start} – ${w.window_end}`).join(', ')}</dd>
         <dt>Days</dt>
         <dd>{(data.days_of_week ?? []).join(', ')}</dd>
         <dt>Room</dt>
@@ -4461,6 +4413,7 @@ git commit -m "feat(add-med): complete ReviewStep with summary"
 ## Task 21: `/add-med` route + modal container + wiring
 
 **Files:**
+
 - Create: `apps/web/src/routes/add-med/index.tsx`
 - Modify: `apps/web/src/App.tsx`
 - Create: `apps/web/src/routes/add-med/__tests__/route.test.tsx`
@@ -4703,6 +4656,7 @@ git commit -m "feat(add-med): wire AddMedRoute to createMedication + createSched
 ## Task 22: E2E — full add-medication happy path
 
 **Files:**
+
 - Create: `apps/web/e2e/add-medication.spec.ts`
 
 - [ ] **Step 1: Write the E2E spec**

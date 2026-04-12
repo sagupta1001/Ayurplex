@@ -23,50 +23,52 @@ Ayurplex is a smart, adaptive medication reminder app. Unlike traditional remind
 
 ## Non-Goals (v1)
 
-| Feature | Deferred to |
-|---|---|
-| AR glasses integration | Not on roadmap |
-| Multi-place / advanced location mapping | v2 |
-| Caregiver collaboration & data sharing | v2 |
-| Document vault (lab results, vaccinations, etc.) | v3 or separate product |
-| Full Insights dashboard (trends, category analytics, provider reports) | v1.5 |
-| Travel itinerary view | v1.5 |
-| Multi-user / family accounts | v2 |
-| LLM-powered scheduling explanations | v2 (hybrid rule+LLM) |
-| Medication interaction warnings | v2 (significant liability; needs drug DB + legal review) |
-| Apple Sign-In | v1.1 (required for App Store) |
-| Full offline mode | v2 (MVP is online-first with optimistic updates) |
+| Feature                                                                | Deferred to                                              |
+| ---------------------------------------------------------------------- | -------------------------------------------------------- |
+| AR glasses integration                                                 | Not on roadmap                                           |
+| Multi-place / advanced location mapping                                | v2                                                       |
+| Caregiver collaboration & data sharing                                 | v2                                                       |
+| Document vault (lab results, vaccinations, etc.)                       | v3 or separate product                                   |
+| Full Insights dashboard (trends, category analytics, provider reports) | v1.5                                                     |
+| Travel itinerary view                                                  | v1.5                                                     |
+| Multi-user / family accounts                                           | v2                                                       |
+| LLM-powered scheduling explanations                                    | v2 (hybrid rule+LLM)                                     |
+| Medication interaction warnings                                        | v2 (significant liability; needs drug DB + legal review) |
+| Apple Sign-In                                                          | v1.1 (required for App Store)                            |
+| Full offline mode                                                      | v2 (MVP is online-first with optimistic updates)         |
 
 ---
 
 ## Technology Decisions
 
-| Area | Decision | Rationale |
-|---|---|---|
-| **Design fidelity** | Faithful to Priya's Behance | Colors, typography, layouts, navigation as-designed |
-| **Client framework** | React 18 + Vite | Fast dev server, SPA model fits the designs |
-| **Native wrapper** | Capacitor 6 | Single codebase for PWA + iOS/Android app-store builds |
-| **Backend** | Supabase | Postgres + Auth + Storage + Edge Functions; relational fit for meds/schedules/adherence; open-source, no lock-in |
-| **AI scheduling** | Rule-based (deterministic) | Cheap, predictable, explainable, no LLM cost; ships fast |
-| **Voice** | Voice logging only, Web Speech API | Free, in-browser, covers 80% of value |
-| **Prescription upload** | Upload + Claude Vision extraction | LLM vision parses handwritten scripts; mandatory user review for safety |
-| **Auth** | Google OAuth only | Bundles login with Calendar permission in one flow |
-| **Notifications** | Web Push + Capacitor native (FCM) | Single codebase, both delivery paths |
-| **Location** | Home geofence + manual room selection | No hardware; GPS is reliable at "home" scale; room-level is user-tapped |
-| **Styling** | Tailwind CSS + CSS variables (Priya's palette) | Utility-first, easy theming |
-| **State** | Zustand + TanStack Query | Client state in Zustand; Supabase data via TanStack Query |
-| **Forms** | React Hook Form + Zod | Type-safe Add Medication forms |
-| **Testing** | Vitest + RTL + Playwright | Unit + component + E2E pyramid |
-| **Monorepo** | pnpm workspaces + Turborepo | Shared packages (rule-engine, UI) across apps and edge fns |
+| Area                    | Decision                                       | Rationale                                                                                                        |
+| ----------------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| **Design fidelity**     | Faithful to Priya's Behance                    | Colors, typography, layouts, navigation as-designed                                                              |
+| **Client framework**    | React 18 + Vite                                | Fast dev server, SPA model fits the designs                                                                      |
+| **Native wrapper**      | Capacitor 6                                    | Single codebase for PWA + iOS/Android app-store builds                                                           |
+| **Backend**             | Supabase                                       | Postgres + Auth + Storage + Edge Functions; relational fit for meds/schedules/adherence; open-source, no lock-in |
+| **AI scheduling**       | Rule-based (deterministic)                     | Cheap, predictable, explainable, no LLM cost; ships fast                                                         |
+| **Voice**               | Voice logging only, Web Speech API             | Free, in-browser, covers 80% of value                                                                            |
+| **Prescription upload** | Upload + Claude Vision extraction              | LLM vision parses handwritten scripts; mandatory user review for safety                                          |
+| **Auth**                | Google OAuth only                              | Bundles login with Calendar permission in one flow                                                               |
+| **Notifications**       | Web Push + Capacitor native (FCM)              | Single codebase, both delivery paths                                                                             |
+| **Location**            | Home geofence + manual room selection          | No hardware; GPS is reliable at "home" scale; room-level is user-tapped                                          |
+| **Styling**             | Tailwind CSS + CSS variables (Priya's palette) | Utility-first, easy theming                                                                                      |
+| **State**               | Zustand + TanStack Query                       | Client state in Zustand; Supabase data via TanStack Query                                                        |
+| **Forms**               | React Hook Form + Zod                          | Type-safe Add Medication forms                                                                                   |
+| **Testing**             | Vitest + RTL + Playwright                      | Unit + component + E2E pyramid                                                                                   |
+| **Monorepo**            | pnpm workspaces + Turborepo                    | Shared packages (rule-engine, UI) across apps and edge fns                                                       |
 
 ### Design tokens (from Priya's Behance)
 
 **Colors**
+
 - Primary: `#007972` (Forest Green), `#19AFA2` (Leafy Green), `#4D9999` (Dark Green), `#27879F` (Secondary Blue)
 - Accent: `#F9E169` (Yellow), `#D7BD37` (Dark Yellow)
 - Neutrals: `#111111` (Dark Black), `#2C2C2C` (Mild Black), `#092C4C` (Dark Blue), gray scale
 
 **Typography**
+
 - Headings: **Lexend** (Google Fonts) — H1 39px → H5 16px
 - Body: **Roboto** (Google Fonts) — Large 31px, Medium 20px, Normal 16px, Small 14px
 
@@ -112,11 +114,13 @@ All tables have `id uuid primary key default gen_random_uuid()`, `created_at tim
 ### Tables
 
 **`users`** — managed by Supabase Auth
+
 - `id`
 - `email`
 - `google_refresh_token` (encrypted, for Calendar API server-side refresh)
 
 **`profiles`**
+
 - `user_id` FK → users
 - `display_name`
 - `timezone` (IANA string, e.g. `America/Toronto`)
@@ -124,12 +128,14 @@ All tables have `id uuid primary key default gen_random_uuid()`, `created_at tim
 - `notification_prefs` (jsonb: channels, quiet hours)
 
 **`rooms`**
+
 - `user_id`
 - `name` (`"Kitchen"`, `"Bedroom"`, etc.)
 - `icon`
 - Default room `"Home"` auto-created on first login so `preferred_room_id` always has a valid default.
 
 **`medications`**
+
 - `user_id`
 - `name` (`"Metformin"`)
 - `dosage_amount` (500)
@@ -143,6 +149,7 @@ All tables have `id uuid primary key default gen_random_uuid()`, `created_at tim
 - `active` (boolean)
 
 **`medication_schedules`**
+
 - `medication_id` FK
 - `frequency` (`"daily"` | `"weekly"` | `"as_needed"`)
 - `times_of_day` (jsonb: `[{window_start: "08:00", window_end: "11:00"}]`)
@@ -150,6 +157,7 @@ All tables have `id uuid primary key default gen_random_uuid()`, `created_at tim
 - `preferred_room_id` FK → rooms (nullable)
 
 **`prescriptions`**
+
 - `user_id`
 - `storage_path` (Supabase Storage URL)
 - `uploaded_at`
@@ -158,6 +166,7 @@ All tables have `id uuid primary key default gen_random_uuid()`, `created_at tim
 - `status` (`"pending_review"` | `"confirmed"` | `"rejected"`)
 
 **`scheduled_doses`** — materialized per day by pg_cron
+
 - `user_id`
 - `medication_id`
 - `schedule_id`
@@ -169,6 +178,7 @@ All tables have `id uuid primary key default gen_random_uuid()`, `created_at tim
 - `taken_via` (`"manual"` | `"voice"` | `"auto"`)
 
 **`calendar_events_cache`** — refreshed every 15 min per user
+
 - `user_id`
 - `google_event_id`
 - `summary`
@@ -177,12 +187,14 @@ All tables have `id uuid primary key default gen_random_uuid()`, `created_at tim
 - `is_travel` (boolean — derived from distance from home)
 
 **`location_events`** — geofence + room tracking
+
 - `user_id`
 - `event_type` (`"entered_home"` | `"left_home"` | `"room_selected"`)
 - `room_id` FK (nullable)
 - `occurred_at`
 
 **`notification_log`** — audit + dedupe
+
 - `user_id`
 - `scheduled_dose_id` FK
 - `channel` (`"push"` | `"in_app"`)
@@ -191,7 +203,7 @@ All tables have `id uuid primary key default gen_random_uuid()`, `created_at tim
 
 ### Design rationale
 
-- **`scheduled_doses` is materialized** — rule engine pre-computes each day's doses. Adherence math is trivial, adjustments are transparent (you can see *why* a dose was shifted).
+- **`scheduled_doses` is materialized** — rule engine pre-computes each day's doses. Adherence math is trivial, adjustments are transparent (you can see _why_ a dose was shifted).
 - **`vision_raw_response` stored separately** — can re-parse without re-hitting Claude if extraction logic changes; audit trail for health data.
 - **`calendar_events_cache`** — avoids hitting Google Calendar API on every reminder check. 15-min refresh via pg_cron.
 - **`prescriptions.status = pending_review`** — LLM extraction is NEVER auto-saved to `medications`. User review is mandatory (safety rail).
@@ -532,6 +544,7 @@ All must pass before merge.
 ### Test data & seeding
 
 `supabase/seed.sql` creates:
+
 - 2 test users with linked Google tokens (stub)
 - 4 medications across different meal-relationship types
 - 10 scheduled_doses for the next 7 days
@@ -542,6 +555,7 @@ All must pass before merge.
 ## Risks & Mitigations
 
 **🔴 R1 — Medication safety (HIGH)** — Wrong reminders or misparsed prescriptions can cause harm.
+
 - Rule engine is deterministic and fully unit-tested
 - LLM vision output NEVER auto-saved — user review required
 - Adherence logs append-only for audit
@@ -549,35 +563,41 @@ All must pass before merge.
 - User-facing disclaimer: "Ayurplex is not a substitute for medical advice"
 
 **🔴 R2 — Push reliability (HIGH)** — A reminder app that can't reliably push is worthless.
+
 - Dual-channel: `notification_log` tracks dispatch + delivery
 - In-app badge fallback
 - Retry dispatch up to 3 times on failure
 - Manual QA on iOS Safari, Chrome, Capacitor iOS/Android pre-launch
 
 **🟠 R3 — Calendar API rate limits & staleness (MEDIUM)**
+
 - 15-min cache refresh balances quota vs freshness
 - Exponential backoff on 429s
 - UI shows "Last synced X min ago"
 - Manual force-refresh in Settings
 
 **🟠 R4 — LLM vision extraction accuracy (MEDIUM)**
+
 - Confidence score displayed per field (green/yellow/red)
 - Mandatory user review, all fields editable
 - "Reject and enter manually" escape hatch
 - Store raw + parsed for debug / re-parsing
 
 **🟠 R5 — Timezone bugs (MEDIUM)**
+
 - All timestamps stored in UTC; rendered in user's profile timezone
 - Rule engine operates in user's IANA timezone
 - Integration tests cover DST transitions and travel scenarios
 - Single `lib/date.ts` wrapper — no raw `Date` in feature code
 
 **🟡 R6 — Browser compatibility (LOW)**
+
 - Capability detection + graceful degradation
 - Documented support matrix in README
 - Capacitor native builds cover iOS App Store users
 
 **🟡 R7 — Supabase vendor (LOW)**
+
 - Supabase is open-source and self-hostable; schema is standard Postgres
 - Migration path to any Postgres host exists
 
@@ -597,19 +617,19 @@ All must pass before merge.
 
 All decisions made during brainstorming (2026-04-11):
 
-| # | Decision | Consulted | Rationale |
-|---|---|---|---|
-| 1 | Faithful to Priya's Behance design | User | Avoids design debate, leverages existing research |
-| 2 | React + Vite + Capacitor (not Next.js, not Expo) | User, Manager | PWA + app store from one codebase; SPA fits a personal health app |
-| 3 | Supabase over Firebase | User, Manager | Relational data model fits meds/schedules/adherence; no vendor lock-in |
-| 4 | Rule-based scheduling (not LLM) | User, Manager | Deterministic, cheap, testable, explainable |
-| 5 | Voice logging only (Web Speech API) | User | 80% of value, zero cost, no cloud dependency |
-| 6 | Prescription upload + Claude Vision | User | LLM vision beats traditional OCR on handwriting; mandatory user review gates risk |
-| 7 | Google OAuth only in MVP | User | Bundles Calendar permission in sign-in; Apple Sign-In deferred to v1.1 |
-| 8 | Web Push + Capacitor native (FCM) | User | Single codebase, dual delivery |
-| 9 | Home geofence + manual room check-in | User | No hardware dependency; GPS works at "home" scale; room-level stays user-tapped |
-| 10 | Onboarding: sign-in → home → notifications (3 steps) | User | User pushback on room setup during onboarding — deferred to Settings |
-| 11 | MVP = happy path end-to-end | User | Insights/reports/Documents deferred to v1.5+ |
-| 12 | AR glasses explicitly out of scope | User | Not on roadmap at all |
+| #   | Decision                                             | Consulted     | Rationale                                                                         |
+| --- | ---------------------------------------------------- | ------------- | --------------------------------------------------------------------------------- |
+| 1   | Faithful to Priya's Behance design                   | User          | Avoids design debate, leverages existing research                                 |
+| 2   | React + Vite + Capacitor (not Next.js, not Expo)     | User, Manager | PWA + app store from one codebase; SPA fits a personal health app                 |
+| 3   | Supabase over Firebase                               | User, Manager | Relational data model fits meds/schedules/adherence; no vendor lock-in            |
+| 4   | Rule-based scheduling (not LLM)                      | User, Manager | Deterministic, cheap, testable, explainable                                       |
+| 5   | Voice logging only (Web Speech API)                  | User          | 80% of value, zero cost, no cloud dependency                                      |
+| 6   | Prescription upload + Claude Vision                  | User          | LLM vision beats traditional OCR on handwriting; mandatory user review gates risk |
+| 7   | Google OAuth only in MVP                             | User          | Bundles Calendar permission in sign-in; Apple Sign-In deferred to v1.1            |
+| 8   | Web Push + Capacitor native (FCM)                    | User          | Single codebase, dual delivery                                                    |
+| 9   | Home geofence + manual room check-in                 | User          | No hardware dependency; GPS works at "home" scale; room-level stays user-tapped   |
+| 10  | Onboarding: sign-in → home → notifications (3 steps) | User          | User pushback on room setup during onboarding — deferred to Settings              |
+| 11  | MVP = happy path end-to-end                          | User          | Insights/reports/Documents deferred to v1.5+                                      |
+| 12  | AR glasses explicitly out of scope                   | User          | Not on roadmap at all                                                             |
 
 Final authority on all decisions: the Manager (with user override). No other agent is authorized to make technical or business decisions.

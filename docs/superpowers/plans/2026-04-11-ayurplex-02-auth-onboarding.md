@@ -360,7 +360,6 @@
 **Goal:** Google OAuth enabled in local Supabase; env vars documented; dev walkthrough recorded in the plan.
 
 - [ ] **4.1** Create Google OAuth credentials. Walk through these EXACT steps in the browser (document, don't automate):
-
   1. Go to https://console.cloud.google.com/
   2. Create (or reuse) a project named `ayurplex-dev`.
   3. Open **APIs & Services → Library**. Search for `Google Calendar API`. Click **Enable**.
@@ -518,9 +517,7 @@
           <Probe />
         </AuthProvider>,
       );
-      await waitFor(() =>
-        expect(screen.getByTestId('loading')).toHaveTextContent('ready'),
-      );
+      await waitFor(() => expect(screen.getByTestId('loading')).toHaveTextContent('ready'));
 
       authStateListeners[0]('SIGNED_OUT', null);
 
@@ -654,8 +651,7 @@
       expect(signInWithOAuth).toHaveBeenCalledWith({
         provider: 'google',
         options: {
-          scopes:
-            'openid email profile https://www.googleapis.com/auth/calendar.readonly',
+          scopes: 'openid email profile https://www.googleapis.com/auth/calendar.readonly',
           redirectTo: `${window.location.origin}/`,
           queryParams: {
             access_type: 'offline',
@@ -741,9 +737,7 @@
       <main className="flex min-h-screen flex-col items-center justify-center bg-ayur-bg px-6 font-roboto text-ayur-ink">
         <div className="w-full max-w-sm text-center">
           <h1 className="mb-2 font-lexend text-3xl font-semibold text-ayur-primary">Ayurplex</h1>
-          <p className="mb-10 text-base text-ayur-ink/70">
-            Smart, adaptive medication reminders.
-          </p>
+          <p className="mb-10 text-base text-ayur-ink/70">Smart, adaptive medication reminders.</p>
           <SignInButton />
         </div>
       </main>
@@ -1015,10 +1009,7 @@
 
   export async function updateProfile(partial: ProfileUpdate): Promise<void> {
     const userId = await currentUserId();
-    const { error } = await supabase
-      .from('profiles')
-      .update(partial)
-      .eq('user_id', userId);
+    const { error } = await supabase.from('profiles').update(partial).eq('user_id', userId);
     if (error) throw error;
   }
   ```
@@ -1310,10 +1301,7 @@
     return {
       __esModule: true,
       default: ({ children, onClick }: any) => (
-        <div
-          data-testid="map"
-          onClick={() => onClick?.({ lngLat: { lng: -79.38, lat: 43.65 } })}
-        >
+        <div data-testid="map" onClick={() => onClick?.({ lngLat: { lng: -79.38, lat: 43.65 } })}>
           {children}
         </div>
       ),
@@ -1419,9 +1407,7 @@
 
     return (
       <section className="mx-auto flex max-w-md flex-col gap-4 p-6 font-roboto">
-        <h2 className="font-lexend text-2xl font-semibold text-ayur-primary">
-          Set your home
-        </h2>
+        <h2 className="font-lexend text-2xl font-semibold text-ayur-primary">Set your home</h2>
         <p className="text-sm text-ayur-ink/70">
           Tap the map to drop a pin, or use your current location. We'll use this to surface
           reminders when you get home. You can skip and set it later in Settings.
@@ -1554,7 +1540,8 @@
   }
 
   export function NotificationStep({ onNext }: NotificationStepProps) {
-    const supported = typeof window !== 'undefined' && typeof (window as any).Notification !== 'undefined';
+    const supported =
+      typeof window !== 'undefined' && typeof (window as any).Notification !== 'undefined';
 
     async function handleEnable() {
       if (!supported) {
@@ -1572,12 +1559,9 @@
     if (!supported) {
       return (
         <section className="mx-auto flex max-w-md flex-col items-center gap-4 p-6 text-center font-roboto">
-          <h2 className="font-lexend text-2xl font-semibold text-ayur-primary">
-            Reminders
-          </h2>
+          <h2 className="font-lexend text-2xl font-semibold text-ayur-primary">Reminders</h2>
           <p className="text-sm text-ayur-ink/70">
-            Push notifications are not supported in this browser. You'll still see in-app
-            reminders.
+            Push notifications are not supported in this browser. You'll still see in-app reminders.
           </p>
           <button
             type="button"
@@ -1592,12 +1576,10 @@
 
     return (
       <section className="mx-auto flex max-w-md flex-col items-center gap-4 p-6 text-center font-roboto">
-        <h2 className="font-lexend text-2xl font-semibold text-ayur-primary">
-          Turn on reminders
-        </h2>
+        <h2 className="font-lexend text-2xl font-semibold text-ayur-primary">Turn on reminders</h2>
         <p className="text-sm text-ayur-ink/70">
-          Ayurplex nudges you when it's time to take a dose — smartly shifted around meetings
-          and meals. We recommend enabling notifications.
+          Ayurplex nudges you when it's time to take a dose — smartly shifted around meetings and
+          meals. We recommend enabling notifications.
         </p>
         <button
           type="button"
@@ -1665,10 +1647,7 @@
   vi.mock('react-map-gl/maplibre', () => ({
     __esModule: true,
     default: ({ children, onClick }: any) => (
-      <div
-        data-testid="map"
-        onClick={() => onClick?.({ lngLat: { lng: -79.38, lat: 43.65 } })}
-      >
+      <div data-testid="map" onClick={() => onClick?.({ lngLat: { lng: -79.38, lat: 43.65 } })}>
         {children}
       </div>
     ),
@@ -1770,12 +1749,7 @@
     }
 
     if (step === 'home') {
-      return (
-        <HomeLocationStep
-          onSave={handleHomeSave}
-          onSkip={() => setStep('notifications')}
-        />
-      );
+      return <HomeLocationStep onSave={handleHomeSave} onSkip={() => setStep('notifications')} />;
     }
 
     return <NotificationStep onNext={finish} />;
@@ -1999,9 +1973,7 @@
         </MemoryRouter>,
       );
       expect(screen.getByText(/welcome, satya/i)).toBeInTheDocument();
-      expect(
-        screen.getByText(/your medications will appear here/i),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/your medications will appear here/i)).toBeInTheDocument();
     });
   });
   ```
@@ -2353,7 +2325,6 @@
   Expected: every step exits 0.
 
 - [ ] **18.2** Manual smoke (requires real Google OAuth credentials from Task 4):
-
   1. `pnpm --filter @ayurplex/web dev`
   2. Open http://localhost:5173 — expect redirect to `/sign-in`.
   3. Click "Sign in with Google". Complete the Google consent flow including the Calendar read scope.

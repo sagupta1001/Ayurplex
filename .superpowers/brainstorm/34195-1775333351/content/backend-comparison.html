@@ -1,0 +1,84 @@
+<h2>Backend: Supabase vs Firebase</h2>
+<p class="subtitle">Compared against Ayurplex MVP requirements</p>
+
+<div class="section">
+  <table style="width:100%; border-collapse:collapse; margin:1.5rem 0; font-size:0.95rem;">
+    <thead>
+      <tr style="border-bottom:2px solid #444;">
+        <th style="text-align:left; padding:0.75rem; width:28%;">Requirement</th>
+        <th style="text-align:left; padding:0.75rem; width:36%;">🟢 Supabase</th>
+        <th style="text-align:left; padding:0.75rem; width:36%;">🟠 Firebase</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-bottom:1px solid #333;">
+        <td style="padding:0.75rem; font-weight:600;">Database</td>
+        <td style="padding:0.75rem;"><strong>PostgreSQL</strong> — relational, SQL, great for structured med schedules, user-calendar relationships, adherence tracking. Complex queries are trivial.</td>
+        <td style="padding:0.75rem;"><strong>Firestore (NoSQL)</strong> — document-based. Medication schedules with nested time windows and calendar links get awkward. Querying across collections requires denormalization.</td>
+      </tr>
+      <tr style="border-bottom:1px solid #333;">
+        <td style="padding:0.75rem; font-weight:600;">Auth</td>
+        <td style="padding:0.75rem;">✅ Email, Google, Apple, phone. Row-level security (RLS) policies built into Postgres.</td>
+        <td style="padding:0.75rem;">✅ Same providers + anonymous auth. Security rules are a separate JSON config — powerful but verbose.</td>
+      </tr>
+      <tr style="border-bottom:1px solid #333;">
+        <td style="padding:0.75rem; font-weight:600;">File Storage<br><span style="color:#888; font-size:0.85rem;">(Prescription upload)</span></td>
+        <td style="padding:0.75rem;">✅ S3-compatible storage with access policies. Direct upload from client. Generates signed URLs.</td>
+        <td style="padding:0.75rem;">✅ Cloud Storage with security rules. Very similar capability.</td>
+      </tr>
+      <tr style="border-bottom:1px solid #333;">
+        <td style="padding:0.75rem; font-weight:600;">Push Notifications<br><span style="color:#888; font-size:0.85rem;">(Med reminders)</span></td>
+        <td style="padding:0.75rem;">⚠️ No built-in push. Need <strong>Edge Functions + FCM/APNs</strong> or a service like OneSignal. More setup, but flexible.</td>
+        <td style="padding:0.75rem;">✅ <strong>FCM built-in</strong> — Firebase Cloud Messaging is best-in-class. Scheduling, topics, conditional delivery. Huge win for a reminder app.</td>
+      </tr>
+      <tr style="border-bottom:1px solid #333;">
+        <td style="padding:0.75rem; font-weight:600;">Serverless Functions<br><span style="color:#888; font-size:0.85rem;">(AI scheduling logic)</span></td>
+        <td style="padding:0.75rem;">✅ <strong>Edge Functions</strong> (Deno/TypeScript). Deploy alongside DB. Can call OpenAI/Claude APIs for smart scheduling.</td>
+        <td style="padding:0.75rem;">✅ <strong>Cloud Functions</strong> (Node.js). Mature, well-documented. Cold starts can be slow on free tier.</td>
+      </tr>
+      <tr style="border-bottom:1px solid #333;">
+        <td style="padding:0.75rem; font-weight:600;">Realtime<br><span style="color:#888; font-size:0.85rem;">(Future: caregiver sync)</span></td>
+        <td style="padding:0.75rem;">✅ Built-in Postgres realtime subscriptions. Subscribe to row changes.</td>
+        <td style="padding:0.75rem;">✅ Firestore onSnapshot — excellent realtime. Slightly better DX for realtime use cases.</td>
+      </tr>
+      <tr style="border-bottom:1px solid #333;">
+        <td style="padding:0.75rem; font-weight:600;">Calendar Integration<br><span style="color:#888; font-size:0.85rem;">(Google Calendar API)</span></td>
+        <td style="padding:0.75rem;">Neutral — both require OAuth + Google Calendar API. Supabase stores tokens in Postgres (easy to query/refresh).</td>
+        <td style="padding:0.75rem;">Neutral — same OAuth flow. Firebase stores tokens in Firestore (harder to batch-query for scheduled jobs).</td>
+      </tr>
+      <tr style="border-bottom:1px solid #333;">
+        <td style="padding:0.75rem; font-weight:600;">Pricing</td>
+        <td style="padding:0.75rem;">Free tier: 500MB DB, 1GB storage, 500K edge fn invocations. Pro: $25/mo.</td>
+        <td style="padding:0.75rem;">Free tier: 1GB Firestore, 5GB storage, 125K fn invocations. Blaze: pay-as-you-go.</td>
+      </tr>
+      <tr style="border-bottom:1px solid #333;">
+        <td style="padding:0.75rem; font-weight:600;">Vendor Lock-in</td>
+        <td style="padding:0.75rem;">🟢 <strong>Low</strong> — open source, self-hostable, standard Postgres. Can migrate to any Postgres host.</td>
+        <td style="padding:0.75rem;">🔴 <strong>High</strong> — proprietary. Firestore data model doesn't transfer. Migrating away is painful.</td>
+      </tr>
+      <tr>
+        <td style="padding:0.75rem; font-weight:600;">Data Model Fit</td>
+        <td style="padding:0.75rem;">🟢 <strong>Excellent</strong> — medications, schedules, calendar events, adherence logs are highly relational. SQL joins, aggregations for insights/trends are natural.</td>
+        <td style="padding:0.75rem;">🟠 <strong>Adequate</strong> — works but requires denormalization. The "Insights" dashboard (adherence trends, category analytics) would need composite indexes or aggregation pipelines.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<h3>My Recommendation</h3>
+<div class="options">
+  <div class="option" data-choice="supabase" onclick="toggleSelect(this)" style="border-left: 3px solid #19AFA2;">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Supabase (Recommended)</h3>
+      <p>Ayurplex's data is deeply relational — meds → schedules → calendar events → adherence logs → insights. SQL is the natural fit. Push notifications need extra setup (OneSignal or FCM via Edge Functions), but that's a one-time cost vs. fighting NoSQL for every query. Open-source means no lock-in.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="firebase" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Firebase</h3>
+      <p>Best choice if push notifications are the #1 priority and you want zero setup for FCM. But the NoSQL data model will create friction for the relational med-schedule-calendar data, and vendor lock-in is real. Better suited for chat apps and social feeds than structured health data.</p>
+    </div>
+  </div>
+</div>

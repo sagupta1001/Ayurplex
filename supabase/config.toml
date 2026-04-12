@@ -57,7 +57,7 @@ verify_jwt = false
 # ---------------------------------------------------------------------------
 # Cron Jobs (production only — local dev uses manual curl trigger)
 # ---------------------------------------------------------------------------
-# Note: Cron scheduling requires Supabase Pro plan or pg_cron setup.
+# send-reminders is scheduled via pg_cron in migration 0006_send_reminders_cron.sql
 # For local dev, trigger manually:
 #   curl -X POST http://localhost:54321/functions/v1/send-reminders \
 #     -H "Authorization: Bearer <SERVICE_ROLE_KEY>"
