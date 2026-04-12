@@ -1,8 +1,9 @@
 // supabase/functions/send-reminders/index.ts
 // Deno Edge Function: queries doses due in the next 5 minutes and sends
-// Web Push notifications using raw VAPID protocol (crypto.subtle).
+// Web Push notifications using the web-push npm library via npm: specifier.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import webpush from 'npm:web-push@3.6.7';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -10,215 +11,9 @@ const VAPID_PRIVATE_KEY = Deno.env.get('VAPID_PRIVATE_KEY')!;
 const VAPID_PUBLIC_KEY = Deno.env.get('VAPID_PUBLIC_KEY')!;
 const VAPID_SUBJECT = Deno.env.get('VAPID_SUBJECT') ?? 'mailto:admin@ayurplex.app';
 
-// --- VAPID / Web Push helpers (Deno-native, no npm dependency) ---
-
-function base64UrlDecode(str: string): Uint8Array {
-  const base64 = str.replace(/-/g, '+').replace(/_/g, '/');
-  const padding = '='.repeat((4 - (base64.length % 4)) % 4);
-  const binary = atob(base64 + padding);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-  return bytes;
-}
-
-function base64UrlEncode(data: Uint8Array): string {
-  let binary = '';
-  for (const byte of data) binary += String.fromCharCode(byte);
-  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-
-function textEncode(str: string): Uint8Array {
-  return new TextEncoder().encode(str);
-}
-
-async function importVapidKeys() {
-  const privateKeyBytes = base64UrlDecode(VAPID_PRIVATE_KEY);
-  const publicKeyBytes = base64UrlDecode(VAPID_PUBLIC_KEY);
-
-  const privateKey = await crypto.subtle.importKey(
-    'jwk',
-    {
-      kty: 'EC',
-      crv: 'P-256',
-      d: base64UrlEncode(privateKeyBytes),
-      x: base64UrlEncode(publicKeyBytes.slice(1, 33)),
-      y: base64UrlEncode(publicKeyBytes.slice(33, 65)),
-    },
-    { name: 'ECDSA', namedCurve: 'P-256' },
-    false,
-    ['sign'],
-  );
-
-  return { privateKey, publicKeyBytes };
-}
-
-async function createVapidAuthHeader(endpoint: string): Promise<{ authorization: string; cryptoKey: string }> {
-  const { privateKey, publicKeyBytes } = await importVapidKeys();
-  const audience = new URL(endpoint).origin;
-  const expiry = Math.floor(Date.now() / 1000) + 12 * 60 * 60; // 12 hours
-
-  const header = base64UrlEncode(textEncode(JSON.stringify({ typ: 'JWT', alg: 'ES256' })));
-  const payload = base64UrlEncode(
-    textEncode(JSON.stringify({ aud: audience, exp: expiry, sub: VAPID_SUBJECT })),
-  );
-
-  const unsignedToken = `${header}.${payload}`;
-  const signature = await crypto.subtle.sign(
-    { name: 'ECDSA', hash: 'SHA-256' },
-    privateKey,
-    textEncode(unsignedToken),
-  );
-
-  // Convert DER-encoded signature to raw r||s (64 bytes)
-  const sigBytes = new Uint8Array(signature);
-  let r: Uint8Array, s: Uint8Array;
-  if (sigBytes.length === 64) {
-    r = sigBytes.slice(0, 32);
-    s = sigBytes.slice(32, 64);
-  } else {
-    // Already raw format from crypto.subtle on most platforms
-    r = sigBytes.slice(0, 32);
-    s = sigBytes.slice(32, 64);
-  }
-  const rawSig = new Uint8Array(64);
-  rawSig.set(r, 0);
-  rawSig.set(s, 32);
-
-  const token = `${unsignedToken}.${base64UrlEncode(rawSig)}`;
-  return {
-    authorization: `vapid t=${token}, k=${base64UrlEncode(publicKeyBytes)}`,
-    cryptoKey: `p256ecdsa=${base64UrlEncode(publicKeyBytes)}`,
-  };
-}
-
-// --- Encryption helpers (aes128gcm as per RFC 8291) ---
-
-async function encryptPayload(
-  payload: string,
-  p256dhKey: string,
-  authSecret: string,
-): Promise<{ body: Uint8Array; salt: Uint8Array; localPublicKey: Uint8Array }> {
-  const subscriberPublicKeyBytes = base64UrlDecode(p256dhKey);
-  const authSecretBytes = base64UrlDecode(authSecret);
-
-  // Generate local ECDH key pair
-  const localKeyPair = await crypto.subtle.generateKey(
-    { name: 'ECDH', namedCurve: 'P-256' },
-    true,
-    ['deriveBits'],
-  );
-
-  const localPublicKeyRaw = await crypto.subtle.exportKey('raw', localKeyPair.publicKey);
-  const localPublicKey = new Uint8Array(localPublicKeyRaw);
-
-  // Import subscriber public key
-  const subscriberKey = await crypto.subtle.importKey(
-    'raw',
-    subscriberPublicKeyBytes,
-    { name: 'ECDH', namedCurve: 'P-256' },
-    false,
-    [],
-  );
-
-  // ECDH shared secret
-  const sharedSecretBits = await crypto.subtle.deriveBits(
-    { name: 'ECDH', public: subscriberKey },
-    localKeyPair.privateKey,
-    256,
-  );
-  const sharedSecret = new Uint8Array(sharedSecretBits);
-
-  // Salt (16 random bytes)
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-
-  // HKDF-based key derivation per RFC 8291
-  const ikm = await hkdf(authSecretBytes, sharedSecret, concatBytes(
-    textEncode('WebPush: info\0'),
-    subscriberPublicKeyBytes,
-    localPublicKey,
-  ), 32);
-
-  const prk = await hkdf(salt, ikm, textEncode('Content-Encoding: aes128gcm\0'), 16);
-  const nonce = await hkdf(salt, ikm, textEncode('Content-Encoding: nonce\0'), 12);
-
-  // Encrypt with AES-128-GCM
-  const contentKey = await crypto.subtle.importKey('raw', prk, 'AES-GCM', false, ['encrypt']);
-  const padded = concatBytes(textEncode(payload), new Uint8Array([1])); // RFC 8291 §3.4: final/only record delimiter is 0x01
-  const encrypted = await crypto.subtle.encrypt(
-    { name: 'AES-GCM', iv: nonce },
-    contentKey,
-    padded,
-  );
-
-  // Build aes128gcm body: salt(16) + rs(4) + idlen(1) + keyid(65) + encrypted
-  const rs = new Uint8Array(4);
-  new DataView(rs.buffer).setUint32(0, 4096);
-  const body = concatBytes(salt, rs, new Uint8Array([65]), localPublicKey, new Uint8Array(encrypted));
-
-  return { body, salt, localPublicKey };
-}
-
-async function hkdf(
-  salt: Uint8Array,
-  ikm: Uint8Array,
-  info: Uint8Array,
-  length: number,
-): Promise<Uint8Array> {
-  const key = await crypto.subtle.importKey('raw', ikm, 'HKDF', false, ['deriveBits']);
-  const bits = await crypto.subtle.deriveBits(
-    { name: 'HKDF', hash: 'SHA-256', salt, info },
-    key,
-    length * 8,
-  );
-  return new Uint8Array(bits);
-}
-
-function concatBytes(...arrays: Uint8Array[]): Uint8Array {
-  const total = arrays.reduce((sum, a) => sum + a.length, 0);
-  const result = new Uint8Array(total);
-  let offset = 0;
-  for (const a of arrays) {
-    result.set(a, offset);
-    offset += a.length;
-  }
-  return result;
-}
-
-async function sendPushNotification(
-  endpoint: string,
-  p256dh: string,
-  auth: string,
-  payload: object,
-): Promise<boolean> {
-  try {
-    const payloadStr = JSON.stringify(payload);
-    const { body } = await encryptPayload(payloadStr, p256dh, auth);
-    const vapidHeaders = await createVapidAuthHeader(endpoint);
-
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/octet-stream',
-        'Content-Encoding': 'aes128gcm',
-        Authorization: vapidHeaders.authorization,
-        TTL: '86400',
-      },
-      body,
-    });
-
-    if (response.status === 410 || response.status === 404) {
-      // Subscription expired — clean up
-      const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-      await supabase.from('push_subscriptions').delete().eq('endpoint', endpoint);
-      return false;
-    }
-
-    return response.ok;
-  } catch (err) {
-    console.error(`Push failed for ${endpoint}:`, err);
-    return false;
-  }
-}
+// Configure VAPID details once at startup
+// The keys are base64url-encoded raw bytes — web-push expects them in this format.
+webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
 
 // --- Main handler ---
 
@@ -293,16 +88,35 @@ Deno.serve(async (_req) => {
         dosage_unit: string;
       };
 
-      const payload = {
+      const payload = JSON.stringify({
         title: 'Ayurplex Reminder',
         body: `Time to take ${med.name} ${med.dosage_amount}${med.dosage_unit}`,
         tag: `dose-${dose.id}`,
         data: { doseId: dose.id },
-      };
+      });
 
       for (const sub of userSubs) {
-        const ok = await sendPushNotification(sub.endpoint, sub.p256dh, sub.auth, payload);
-        if (ok) sent++;
+        try {
+          const pushSubscription = {
+            endpoint: sub.endpoint,
+            keys: {
+              p256dh: sub.p256dh,
+              auth: sub.auth,
+            },
+          };
+
+          await webpush.sendNotification(pushSubscription, payload, { TTL: 86400 });
+          sent++;
+        } catch (err: unknown) {
+          const status = (err as { statusCode?: number }).statusCode;
+          if (status === 410 || status === 404) {
+            // Subscription expired — clean up
+            console.log(`Removing expired subscription: ${sub.endpoint}`);
+            await supabase.from('push_subscriptions').delete().eq('endpoint', sub.endpoint);
+          } else {
+            console.error(`Push failed for ${sub.endpoint}:`, err);
+          }
+        }
       }
     }
 
