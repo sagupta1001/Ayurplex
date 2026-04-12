@@ -1,0 +1,7 @@
+{
+  "framework": "vite",
+  "buildCommand": "cd ../.. && pnpm install && pnpm --filter @ayurplex/web build",
+  "outputDirectory": "dist",
+  "installCommand": "echo 'skip - handled in buildCommand'",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
