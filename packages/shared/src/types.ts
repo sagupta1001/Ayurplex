@@ -140,3 +140,52 @@ export interface PushSubscriptionInsert {
   p256dh: string;
   auth: string;
 }
+
+// ---------------------------------------------------------------------------
+// Plan 5 — Prescription Upload
+// ---------------------------------------------------------------------------
+
+/** Status of a prescription upload. */
+export type PrescriptionStatus = 'pending_review' | 'confirmed' | 'rejected';
+
+/** Confidence scores for a single extracted medication field. */
+export interface ConfidenceScores {
+  name: number;
+  dosage: number;
+  frequency: number;
+  times: number;
+  meal: number;
+}
+
+/** A single medication extracted by Claude Vision. */
+export interface ExtractedMedication {
+  name: string | null;
+  dosage_amount: number | null;
+  dosage_unit: string | null;
+  frequency: ScheduleFrequency | null;
+  times_of_day: TimeWindow[] | null;
+  meal_relationship: MealRelationship | null;
+  duration_days: number | null;
+  confidence: ConfidenceScores;
+}
+
+/** Structured output from Claude Vision parsing. */
+export interface VisionParsed {
+  medications: ExtractedMedication[];
+  doctor_name: string | null;
+  date_prescribed: string | null;
+  notes: string | null;
+}
+
+/** A prescription row from the database. */
+export interface Prescription {
+  id: string;
+  user_id: string;
+  storage_path: string;
+  uploaded_at: string;
+  vision_raw_response: unknown | null;
+  vision_parsed: VisionParsed | null;
+  status: PrescriptionStatus;
+  created_at: string;
+  updated_at: string;
+}
