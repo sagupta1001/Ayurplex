@@ -47,3 +47,17 @@ secret = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET)"
 redirect_uri = "http://localhost:54321/auth/v1/callback"
 url = "https://accounts.google.com"
 skip_nonce_check = false
+
+# ---------------------------------------------------------------------------
+# Edge Functions
+# ---------------------------------------------------------------------------
+[functions.send-reminders]
+verify_jwt = false
+
+# ---------------------------------------------------------------------------
+# Cron Jobs (production only — local dev uses manual curl trigger)
+# ---------------------------------------------------------------------------
+# Note: Cron scheduling requires Supabase Pro plan or pg_cron setup.
+# For local dev, trigger manually:
+#   curl -X POST http://localhost:54321/functions/v1/send-reminders \
+#     -H "Authorization: Bearer <SERVICE_ROLE_KEY>"
