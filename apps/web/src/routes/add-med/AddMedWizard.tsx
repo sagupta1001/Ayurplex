@@ -1,6 +1,7 @@
 import { useReducer, useCallback } from 'react';
 import type { ReactElement } from 'react';
 import type { AddMedFormData } from './schema';
+import type { MedicationFormData } from '@/features/medications/MedicationForm';
 import { NameStep } from './steps/NameStep';
 import { DosageStep } from './steps/DosageStep';
 import { MealRelationshipStep } from './steps/MealRelationshipStep';
@@ -64,9 +65,9 @@ export function AddMedWizard({ onSubmit, onClose, initial }: AddMedWizardProps):
   const next = useCallback((patch: PartialAddMedData) => dispatch({ type: 'next', patch }), []);
   const back = useCallback(() => dispatch({ type: 'back' }), []);
 
-  const handleSubmit = useCallback(() => {
-    onSubmit(state.data as AddMedFormData);
-  }, [onSubmit, state.data]);
+  const handleReviewSubmit = useCallback((formData: MedicationFormData) => {
+    onSubmit(formData as unknown as AddMedFormData);
+  }, [onSubmit]);
 
   return (
     <div data-testid="add-med-wizard">
@@ -105,7 +106,7 @@ export function AddMedWizard({ onSubmit, onClose, initial }: AddMedWizardProps):
           <DateRangeStep data={state.data} onNext={next} onBack={back} />
         )}
         {currentStep === 'review' && (
-          <ReviewStep data={state.data} onBack={back} onSubmit={handleSubmit} />
+          <ReviewStep data={state.data} onBack={back} onSubmit={handleReviewSubmit} />
         )}
       </div>
     </div>
