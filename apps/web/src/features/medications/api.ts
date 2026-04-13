@@ -49,3 +49,21 @@ export async function deactivateMedication(id: string): Promise<Medication> {
   if (error) throw error;
   return data as Medication;
 }
+
+/** Update fields on an existing medication and return the updated row. */
+export async function updateMedication(id: string, input: Partial<MedicationInput>): Promise<Medication> {
+  const { data, error } = await supabase
+    .from('medications')
+    .update(input)
+    .eq('id', id)
+    .select('*')
+    .single();
+  if (error) throw error;
+  return data as Medication;
+}
+
+/** Hard-delete a medication; FK cascade removes schedules and doses. */
+export async function deleteMedication(id: string): Promise<void> {
+  const { error } = await supabase.from('medications').delete().eq('id', id);
+  if (error) throw error;
+}
