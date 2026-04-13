@@ -8,6 +8,7 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 export function UploadPrescriptionRoute(): ReactElement {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [fileSizeError, setFileSizeError] = useState<string | null>(null);
@@ -96,49 +97,94 @@ export function UploadPrescriptionRoute(): ReactElement {
         Take a photo of your prescription and we'll extract the medication details for you.
       </p>
 
-      {/* File input tap area */}
-      <div
-        onClick={() => !isLoading && fileInputRef.current?.click()}
-        style={{
-          border: '2px dashed #4D9999',
-          borderRadius: 16,
-          padding: 32,
-          textAlign: 'center',
-          cursor: isLoading ? 'default' : 'pointer',
-          background: '#FFFFFF',
-          marginBottom: 16,
-          opacity: isLoading ? 0.6 : 1,
-        }}
-      >
-        {previewUrl ? (
+      {/* File input area */}
+      {previewUrl ? (
+        <div style={{ marginBottom: 16, textAlign: 'center' }}>
           <img
             src={previewUrl}
             alt="Prescription preview"
-            style={{
-              maxWidth: '100%',
-              maxHeight: 300,
-              borderRadius: 8,
-              objectFit: 'contain',
-            }}
+            style={{ maxWidth: '100%', maxHeight: 300, borderRadius: 12, objectFit: 'contain' }}
           />
-        ) : (
-          <>
-            <div style={{ fontSize: 48, marginBottom: 8 }}>📷</div>
-            <p style={{ color: '#092C4C', fontWeight: 500, margin: '0 0 4px' }}>
-              Take a photo of your prescription
-            </p>
-            <p style={{ color: '#4D9999', fontSize: 13, margin: 0 }}>
-              or choose from gallery
-            </p>
-          </>
-        )}
-      </div>
+          <button
+            onClick={() => { setSelectedFile(null); setPreviewUrl(null); }}
+            style={{
+              marginTop: 8,
+              background: 'none',
+              border: 'none',
+              color: '#4D9999',
+              fontSize: 14,
+              cursor: 'pointer',
+              fontFamily: 'Roboto, sans-serif',
+            }}
+          >
+            Change image
+          </button>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+          <button
+            type="button"
+            onClick={() => !isLoading && fileInputRef.current?.click()}
+            disabled={isLoading}
+            style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 8,
+              padding: '24px 16px',
+              border: '2px dashed #4D9999',
+              borderRadius: 16,
+              background: '#FFFFFF',
+              cursor: isLoading ? 'default' : 'pointer',
+              opacity: isLoading ? 0.6 : 1,
+            }}
+          >
+            <span style={{ fontSize: 36 }}>📷</span>
+            <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: 14, fontWeight: 500, color: '#092C4C' }}>
+              Take a photo
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => !isLoading && galleryInputRef.current?.click()}
+            disabled={isLoading}
+            style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 8,
+              padding: '24px 16px',
+              border: '2px dashed #4D9999',
+              borderRadius: 16,
+              background: '#FFFFFF',
+              cursor: isLoading ? 'default' : 'pointer',
+              opacity: isLoading ? 0.6 : 1,
+            }}
+          >
+            <span style={{ fontSize: 36 }}>🖼️</span>
+            <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: 14, fontWeight: 500, color: '#092C4C' }}>
+              Choose from gallery
+            </span>
+          </button>
+        </div>
+      )}
 
+      {/* Camera input - capture forces camera */}
       <input
         ref={fileInputRef}
         type="file"
         accept="image/*"
         capture="environment"
+        onChange={handleFileChange}
+        style={{ display: 'none' }}
+      />
+      {/* Gallery input - no capture = opens file/gallery picker */}
+      <input
+        ref={galleryInputRef}
+        type="file"
+        accept="image/*"
         onChange={handleFileChange}
         style={{ display: 'none' }}
       />
