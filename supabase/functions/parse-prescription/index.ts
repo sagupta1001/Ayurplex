@@ -10,6 +10,12 @@ const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY')!;
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+};
+
 const VISION_PROMPT = `You are analyzing a medical prescription image. Extract all medications and metadata from this prescription.
 
 Return a JSON object with this exact schema:
@@ -54,13 +60,17 @@ function getMediaType(path: string): 'image/jpeg' | 'image/png' | 'image/webp' {
 }
 
 Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
+
   try {
     // Parse request
     const { prescription_id } = await req.json();
     if (!prescription_id) {
       return new Response(
         JSON.stringify({ error: 'prescription_id is required' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } },
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
       );
     }
 
@@ -70,7 +80,7 @@ Deno.serve(async (req) => {
     if (!token) {
       return new Response(
         JSON.stringify({ error: 'Missing Authorization header' }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } },
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
       );
     }
 
@@ -84,7 +94,7 @@ Deno.serve(async (req) => {
     if (userError || !user) {
       return new Response(
         JSON.stringify({ error: 'Invalid token' }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } },
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
       );
     }
 
@@ -101,7 +111,7 @@ Deno.serve(async (req) => {
     if (fetchError || !prescription) {
       return new Response(
         JSON.stringify({ error: 'Prescription not found' }),
-        { status: 404, headers: { 'Content-Type': 'application/json' } },
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
       );
     }
 
@@ -109,7 +119,7 @@ Deno.serve(async (req) => {
     if (prescription.user_id !== user.id) {
       return new Response(
         JSON.stringify({ error: 'Not authorized' }),
-        { status: 403, headers: { 'Content-Type': 'application/json' } },
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
       );
     }
 
@@ -122,7 +132,7 @@ Deno.serve(async (req) => {
       console.error('Download error:', downloadError);
       return new Response(
         JSON.stringify({ error: 'Failed to download image' }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } },
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
       );
     }
 
@@ -200,7 +210,7 @@ Deno.serve(async (req) => {
 
     return new Response(JSON.stringify(visionParsed), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
     console.error('parse-prescription error:', err);
@@ -211,7 +221,7 @@ Deno.serve(async (req) => {
         date_prescribed: null,
         notes: null,
       }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } },
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     );
   }
 });
