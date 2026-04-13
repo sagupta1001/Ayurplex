@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import type { ReactElement } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { usePrescriptionUpload } from '@/features/prescriptions/usePrescriptionUpload';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -233,6 +233,22 @@ export function UploadPrescriptionRoute(): ReactElement {
           Upload & Analyze
         </button>
       )}
+
+      <Link
+        to="/add-med"
+        style={{
+          display: 'block',
+          textAlign: 'center',
+          marginTop: 24,
+          fontFamily: 'Roboto, sans-serif',
+          fontSize: 15,
+          color: '#007972',
+          textDecoration: 'none',
+          fontWeight: 500,
+        }}
+      >
+        Or add manually
+      </Link>
     </main>
   );
 }

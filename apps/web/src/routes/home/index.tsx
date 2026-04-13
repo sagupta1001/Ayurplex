@@ -108,31 +108,6 @@ export function HomePage(): ReactElement {
 
       <Link
         to="/upload-prescription"
-        aria-label="Upload prescription"
-        style={{
-          position: 'fixed',
-          bottom: 24,
-          right: 88,
-          width: 56,
-          height: 56,
-          borderRadius: 28,
-          background: '#4D9999',
-          color: '#FFFFFF',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 18,
-          fontWeight: 700,
-          textDecoration: 'none',
-          boxShadow: '0 4px 12px rgba(77, 153, 153, 0.4)',
-          fontFamily: 'Lexend, sans-serif',
-        }}
-      >
-        Rx
-      </Link>
-
-      <Link
-        to="/add-med"
         aria-label="Add medication"
         style={{
           position: 'fixed',
