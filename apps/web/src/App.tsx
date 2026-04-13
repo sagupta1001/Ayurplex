@@ -8,6 +8,7 @@ import SignInPage from '@/routes/sign-in';
 import OnboardingPage from '@/routes/onboarding';
 import HomePage from '@/routes/home';
 import { AddMedRoute } from '@/routes/add-med';
+import { EditMedRoute } from '@/routes/edit-med';
 import { UploadPrescriptionRoute } from '@/routes/upload-prescription';
 import { ReviewScreen } from '@/routes/upload-prescription/ReviewScreen';
 
@@ -46,6 +47,16 @@ export function App(): ReactElement {
                 <RequireAuth>
                   <RequireOnboarded>
                     <AddMedRoute />
+                  </RequireOnboarded>
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/edit-med/:id"
+              element={
+                <RequireAuth>
+                  <RequireOnboarded>
+                    <EditMedRoute />
                   </RequireOnboarded>
                 </RequireAuth>
               }
